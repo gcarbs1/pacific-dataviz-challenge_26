@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+seaborn
+geopandas
+pyogrio
+ipykernel
+nbformat
+nbclient
+jupyterlab
