@@ -1,0 +1,379 @@
+# -*- coding: utf-8 -*-
+"""
+WHERE THE RAIN WENT — A4 art poster (light background, flag drops).
+One page, one artwork: x = geography (west->east), drops fall below the
+"old balance" line where rain increased, fade upward where it decreased.
+
+Builds poster/a4.html from data/rainfall_anomalies/data.csv.
+"""
+import math
+import random
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT = Path(__file__).resolve().parent / "a4.html"
+
+# ---------------------------------------------------------------- data ------
+df = pd.read_csv(ROOT / "data" / "rainfall_anomalies" / "data.csv")
+df = df[["GEO_PICT", "TIME_PERIOD", "OBS_VALUE"]].rename(
+    columns={"GEO_PICT": "iso", "TIME_PERIOD": "year", "OBS_VALUE": "v"}
+)
+H0, H1, R0, R1 = 1979, 2000, 2020, 2025
+hist = df[df.year.between(H0, H1)].groupby("iso")["v"].mean()
+rec = df[df.year.between(R0, R1)].groupby("iso")["v"].mean()
+stats = pd.DataFrame({"hist": hist, "rec": rec})
+stats["delta"] = stats["rec"] - stats["hist"]
+
+NAMES = {
+    "FM": "Micronesia", "SB": "Solomon Is.", "VU": "Vanuatu", "PW": "Palau",
+    "TO": "Tonga", "NU": "Niue", "WF": "Wallis & Futuna", "MH": "Marshall Is.",
+    "FJ": "Fiji", "WS": "Samoa", "PG": "Papua N. Guinea", "AS": "Am. Samoa",
+    "GU": "Guam", "MP": "N. Marianas", "CK": "Cook Is.", "PF": "Fr. Polynesia",
+    "PN": "Pitcairn", "TK": "Tokelau", "NC": "New Caledonia", "KI": "Kiribati",
+    "TV": "Tuvalu", "NR": "Nauru",
+}
+LONG = {
+    "PW": 134.6, "GU": 144.0, "PG": 144.5, "MP": 145.7, "FM": 150.5,
+    "SB": 159.8, "NC": 165.3, "NR": 166.9, "VU": 167.3, "MH": 169.2,
+    "KI": 174.5, "FJ": 178.4, "TV": 179.2, "WF": 183.6, "TO": 184.8,
+    "WS": 187.9, "TK": 188.2, "NU": 190.1, "AS": 190.6, "CK": 200.2,
+    "PF": 211.5, "PN": 229.9,
+}
+FEAT_WET = ["FM", "SB", "VU", "PW"]
+FEAT_DRY = ["NR", "TV", "KI", "NC", "TK"]
+FEATURED = FEAT_WET + FEAT_DRY
+ORDER = sorted(LONG, key=LONG.get)   # west -> east
+n_wet = int((stats.delta > 0).sum())
+n_dry = int((stats.delta < 0).sum())
+
+# ------------------------------------------------------------- palette ------
+PAPER = "#fbf7ee"
+INK = "#22313b"
+SUB = "#5f7280"
+FAINT = "#9aa9b2"
+WET = "#1b87b4"
+WET_D = "#0e5f83"
+DRY = "#c2762e"
+DRY_D = "#9a571c"
+SKY = "#8fb3c4"
+SEA = "#cfe6ee"
+
+def fmt(v):
+    return f"{v:+.1f}".replace("-", "−")
+
+# ---------------------------------------------------------------- shapes ----
+def drop_path(cx, cy, r, up=False):
+    s = -1 if up else 1
+    tip = cy - s * 2.05 * r
+    return (
+        f"M {cx:.1f} {tip:.1f} "
+        f"C {cx + 0.55 * r:.1f} {cy - s * 1.1 * r:.1f} {cx + r:.1f} {cy - s * 0.45 * r:.1f} {cx + r:.1f} {cy:.1f} "
+        f"A {r:.1f} {r:.1f} 0 1 {1 if s == 1 else 0} {cx - r:.1f} {cy:.1f} "
+        f"C {cx - r:.1f} {cy - s * 0.45 * r:.1f} {cx - 0.55 * r:.1f} {cy - s * 1.1 * r:.1f} {cx:.1f} {tip:.1f} Z"
+    )
+
+def star_pts(cx, cy, r, rot=-90.0, n=5, inner=0.42):
+    pts = []
+    for i in range(n * 2):
+        rr = r if i % 2 == 0 else r * inner
+        a = math.radians(rot + i * 180.0 / n)
+        pts.append(f"{cx + rr * math.cos(a):.1f},{cy + rr * math.sin(a):.1f}")
+    return " ".join(pts)
+
+def S(cx, cy, r, fill="#fff", rot=-90.0, n=5, inner=0.42):
+    return f'<polygon points="{star_pts(cx, cy, r, rot, n, inner)}" fill="{fill}"/>'
+
+# ------------------------------------------------------ simplified flags ----
+# drawn in a local 100 x 64 box; strokes use non-scaling so they stay crisp
+NS = 'vector-effect="non-scaling-stroke"'
+
+def flag_svg(iso):
+    f = []
+    if iso == "PW":
+        f.append('<rect width="100" height="64" fill="#4AADD6"/>')
+        f.append('<circle cx="42" cy="32" r="19" fill="#FFDE00"/>')
+    elif iso == "FM":
+        f.append('<rect width="100" height="64" fill="#75B2DD"/>')
+        for cx, cy in ((50, 11), (27, 32), (73, 32), (50, 53)):
+            f.append(S(cx, cy, 8))
+    elif iso == "SB":
+        f.append('<rect width="100" height="64" fill="#3D8E33"/>')
+        f.append('<polygon points="0,0 100,0 0,64" fill="#215B9E"/>')
+        f.append('<polygon points="0,56 87,0 100,0 100,8 13,64 0,64" fill="#FCD116"/>')
+        f.append('<polygon points="0,56 87,0 100,0 0,64" fill="#215B9E"/>')
+        for cx, cy in ((11, 9), (25, 9), (18, 19), (11, 29), (25, 29)):
+            f.append(S(cx, cy, 4.6))
+    elif iso == "VU":
+        f.append('<rect width="100" height="28" fill="#D21034"/>')
+        f.append('<rect y="36" width="100" height="28" fill="#009543"/>')
+        f.append('<rect y="28" width="100" height="8" fill="#000"/>')
+        f.append('<rect y="30.5" width="100" height="3" fill="#FDCE12"/>')
+        f.append('<polygon points="0,0 42,32 0,64" fill="#000"/>')
+        f.append(f'<path d="M 0 5 L 36 32 L 0 59" fill="none" stroke="#FDCE12" stroke-width="1.6" {NS}/>')
+    elif iso == "NR":
+        f.append('<rect width="100" height="64" fill="#002B7F"/>')
+        f.append('<rect y="28" width="100" height="7" fill="#FFC61E"/>')
+        f.append(S(25, 48, 9, n=6, inner=0.5))
+    elif iso == "TV":
+        f.append('<rect width="100" height="64" fill="#75B2DD"/>')
+        f.append('<rect width="50" height="32" fill="#012169"/>')
+        f.append(f'<path d="M0,0 L50,32 M50,0 L0,32" stroke="#fff" stroke-width="2.6" {NS}/>')
+        f.append(f'<path d="M0,0 L50,32 M50,0 L0,32" stroke="#C8102E" stroke-width="1.1" {NS}/>')
+        f.append(f'<path d="M25,0 V32 M0,16 H50" stroke="#fff" stroke-width="3.4" {NS}/>')
+        f.append(f'<path d="M25,0 V32 M0,16 H50" stroke="#C8102E" stroke-width="1.8" {NS}/>')
+        for cx, cy in ((63, 12), (76, 8), (88, 14), (70, 26), (84, 28),
+                       (94, 30), (64, 42), (77, 44), (90, 46)):
+            f.append(S(cx, cy, 3.6, fill="#FFCE00"))
+    elif iso == "KI":
+        f.append('<rect width="100" height="38" fill="#CE1126"/>')
+        f.append('<rect y="38" width="100" height="26" fill="#fff"/>')
+        rays = []
+        for i in range(9):
+            a = math.radians(180 + i * 22.5)
+            x1, y1 = 50 + 15 * math.cos(a), 38 + 15 * math.sin(a)
+            x2, y2 = 50 + 23 * math.cos(a), 38 + 23 * math.sin(a)
+            rays.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#FCD116" stroke-width="2.4" {NS}/>')
+        f.extend(rays)
+        f.append('<path d="M36,38 A14,14 0 0 1 64,38 Z" fill="#FCD116"/>')
+        f.append(f'<path d="M0,46 Q12,41 25,46 T50,46 T75,46 T100,46" fill="none" stroke="#005BBB" stroke-width="3" {NS}/>')
+        f.append(f'<path d="M0,56 Q12,51 25,56 T50,56 T75,56 T100,56" fill="none" stroke="#005BBB" stroke-width="3" {NS}/>')
+    elif iso == "NC":
+        f.append('<rect width="100" height="22" fill="#0035AD"/>')
+        f.append('<rect y="22" width="100" height="21" fill="#ED4135"/>')
+        f.append('<rect y="43" width="100" height="21" fill="#009543"/>')
+        f.append(f'<circle cx="33" cy="32" r="16" fill="#FAE600" stroke="#000" stroke-width="1.4" {NS}/>')
+        f.append('<polygon points="33,15 35.5,24 35.5,42 33,48 30.5,42 30.5,24" fill="#000"/>')
+        f.append('<rect x="27" y="24" width="12" height="2.4" fill="#000"/>')
+        f.append('<rect x="28" y="34" width="10" height="2.2" fill="#000"/>')
+    elif iso == "TK":
+        f.append('<rect width="100" height="64" fill="#00247D"/>')
+        f.append('<path d="M28,54 C48,50 72,42 90,26 C86,44 62,56 30,56 Z" fill="#FED100"/>')
+        f.append(S(15, 13, 4.2))
+        f.append(S(10, 27, 3.4))
+        f.append(S(19, 36, 3.4))
+        f.append(S(23, 22, 2.8))
+    return "".join(f)
+
+CAP = {  # colour of the drop tip (continues the flag's nearest band)
+    "PW": "#4AADD6", "FM": "#75B2DD", "SB": "#215B9E", "VU": "#D21034",
+    "NR": "#002B7F", "TV": "#75B2DD", "KI": "#CE1126", "NC": "#0035AD", "TK": "#00247D",
+}
+CAP_UP = {"NR": "#002B7F", "TV": "#75B2DD", "KI": "#005BBB", "NC": "#009543", "TK": "#00247D"}
+
+# ================================================================ poster =====
+W, Hpx = 840, 1188
+ML, MR = 52, 40
+LINE_Y = 648
+K = 8.0           # px per mm of shift (stem length)
+def rsize(d): return 7.0 + abs(d) * 0.56
+
+rng = random.Random(20)
+art = []
+
+# --- sky & sea washes --------------------------------------------------------
+art.append(f'<rect x="0" y="{LINE_Y}" width="{W}" height="{332}" fill="{SEA}" opacity="0.35"/>')
+# sea waves
+for i in range(5):
+    y = 940 + i * 12
+    seg, x = [f"M -10 {y}"], -10
+    while x < W + 10:
+        seg.append(f"q 14 {-5 if (x // 14) % 2 == 0 else 5} 28 0")
+        x += 28
+    art.append(f'<path d="{" ".join(seg)}" fill="none" stroke="{WET}" stroke-opacity="{0.20 - i * 0.03:.2f}" stroke-width="1.1"/>')
+# rain streaks in the western sky
+for _ in range(150):
+    x = rng.random() ** 1.7 * 330
+    y = 318 + rng.random() * (LINE_Y - 340)
+    ln = 6 + rng.random() * 14
+    art.append(f'<line x1="{x:.0f}" y1="{y:.0f}" x2="{x + 1.5:.0f}" y2="{y + ln:.0f}" stroke="{WET}" stroke-opacity="{0.07 + rng.random() * 0.16:.2f}" stroke-width="1"/>')
+# cloud: fine stacked wavy strokes, top-left
+for i in range(14):
+    y = 318 + i * 5.5
+    amp = 3 + rng.random() * 3
+    width = 300 - i * 9 + rng.random() * 30
+    seg, x = [f"M 0 {y:.0f}"], 0
+    while x < width:
+        seg.append(f"q 11 {-amp:.1f} 22 0")
+        x += 22
+    art.append(f'<path d="{" ".join(seg)}" fill="none" stroke="{SKY}" stroke-opacity="{0.55 - i * 0.03:.2f}" stroke-width="1.2"/>')
+# sun: top-right
+sx, sy = 762, 352
+art.append(f'<circle cx="{sx}" cy="{sy}" r="26" fill="#f3c34e" opacity="0.9"/>')
+art.append(f'<circle cx="{sx}" cy="{sy}" r="26" fill="none" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1"/>')
+for i in range(16):
+    a = math.radians(i * 22.5)
+    r1 = 33
+    r2 = r1 + (16 if i % 2 == 0 else 9)
+    art.append(f'<line x1="{sx + r1 * math.cos(a):.1f}" y1="{sy + r1 * math.sin(a):.1f}" x2="{sx + r2 * math.cos(a):.1f}" y2="{sy + r2 * math.sin(a):.1f}" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1.1"/>')
+
+# editorial annotations in the sky
+art.append(f'<text x="58" y="416" class="anno" fill="{WET_D}">the west fills up</text>')
+art.append(f'<text x="{W - 44}" y="446" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
+
+# --- the balance line --------------------------------------------------------
+art.append(f'<line x1="{ML - 18}" y1="{LINE_Y}" x2="{W - MR + 18}" y2="{LINE_Y}" stroke="{INK}" stroke-width="1.3"/>')
+art.append(f'<text x="{W / 2}" y="{LINE_Y - 9}" class="linelab halo" text-anchor="middle">THE OLD BALANCE — AVERAGE RAIN OF 1979–2000</text>')
+art.append(f'<text x="{ML - 18}" y="{LINE_Y + 22}" class="tinyb" fill="{WET_D}">RAIN GAINED ↓</text>')
+art.append(f'<text x="{W - MR + 18}" y="{LINE_Y - 26}" class="tinyb" fill="{DRY_D}" text-anchor="end">RAIN LOST ↑</text>')
+art.append(f'<text x="{ML - 18}" y="{1006}" class="tiny" fill="{FAINT}">← WEST</text>')
+art.append(f'<text x="{W - MR + 18}" y="{1006}" class="tiny" fill="{FAINT}" text-anchor="end">EAST →</text>')
+
+# --- label fine-tuning (dx, extra dy) ---------------------------------------
+NUDGE = {"FM": (-16, -4), "SB": (16, 28), "VU": (4, 0), "PW": (0, 0),
+         "NR": (0, 0), "TV": (14, 0), "KI": (-14, 0), "NC": (-4, 0), "TK": (0, 0)}
+DRIFT = {"FM": -8, "SB": 9}   # separate adjacent big drops
+
+# --- drops -------------------------------------------------------------------
+slot = (W - ML - MR) / len(ORDER)
+defs = []
+for i, iso in enumerate(ORDER):
+    d = stats.loc[iso, "delta"]
+    x = ML + (i + 0.5) * slot + DRIFT.get(iso, 0)
+    wet = d >= 0
+    feat = iso in FEATURED
+    stem = abs(d) * K
+    if feat:
+        r = rsize(d)
+        cy = LINE_Y + (stem + 2.05 * r) * (1 if wet else -1)  # tip touches stem end
+        tip_y = LINE_Y + stem * (1 if wet else -1)
+        far_y = cy + r * (1 if wet else -1)
+        # stem = rain streaks (wet) or evaporation dashes (dry)
+        if wet:
+            for dx, op in ((-5, 0.35), (0, 0.8), (5, 0.35)):
+                art.append(f'<line x1="{x + dx:.1f}" y1="{LINE_Y + 4}" x2="{x + dx:.1f}" y2="{tip_y - 2:.1f}" stroke="{WET}" stroke-opacity="{op}" stroke-width="1.4" stroke-dasharray="7 5"/>')
+        else:
+            art.append(f'<line x1="{x:.1f}" y1="{LINE_Y - 4}" x2="{x:.1f}" y2="{tip_y + 2:.1f}" stroke="{DRY}" stroke-opacity="0.75" stroke-width="1.4" stroke-dasharray="3 5"/>')
+            for j, yy in enumerate(range(3)):
+                vy = tip_y + 14 + j * 11
+                if vy < LINE_Y - 8:
+                    art.append(f'<path d="M {x - 5:.1f} {vy:.1f} l 5 -5 l 5 5" fill="none" stroke="{DRY}" stroke-opacity="{0.6 - j * 0.15:.2f}" stroke-width="1.2"/>')
+        dp = drop_path(x, cy, r, up=not wet)
+        clip_id = f"c{iso}"
+        defs.append(f'<clipPath id="{clip_id}"><path d="{dp}"/></clipPath>')
+        cap = (CAP if wet else CAP_UP).get(iso, WET)
+        art.append(f'<path d="{dp}" fill="{cap}"/>')
+        fw, fh = 2.35 * r, 1.55 * r
+        art.append(f'<g clip-path="url(#{clip_id})"><g transform="translate({x - fw / 2:.1f},{cy - fh / 2:.1f}) scale({fw / 100:.3f},{fh / 64:.3f})">{flag_svg(iso)}</g></g>')
+        if not wet:  # washed out: the water is leaving
+            art.append(f'<path d="{dp}" fill="{PAPER}" opacity="0.34"/>')
+            art.append(f'<path d="{dp}" fill="none" stroke="{DRY_D}" stroke-width="1.2" stroke-dasharray="4 3"/>')
+        else:
+            art.append(f'<path d="{dp}" fill="none" stroke="{INK}" stroke-opacity="0.75" stroke-width="1.2"/>')
+        # labels
+        ndx, ndy = NUDGE.get(iso, (0, 0))
+        if wet:
+            vy, ny = far_y + 20 + ndy, far_y + 36 + ndy
+        else:
+            ny, vy = far_y - 34 - ndy, far_y - 18 - ndy
+        cval = WET_D if wet else DRY_D
+        art.append(f'<text x="{x + ndx:.0f}" y="{vy:.0f}" class="val halo" fill="{cval}" text-anchor="middle">{fmt(d)} mm</text>')
+        art.append(f'<text x="{x + ndx:.0f}" y="{ny:.0f}" class="name halo" fill="{INK}" text-anchor="middle">{NAMES[iso]}</text>')
+    else:
+        r = 2.6 + abs(d) * 0.34
+        cy = LINE_Y + (stem + 2.05 * r) * (1 if wet else -1)
+        tip_y = LINE_Y + stem * (1 if wet else -1)
+        c = WET if wet else DRY
+        art.append(f'<line x1="{x:.1f}" y1="{LINE_Y + (4 if wet else -4)}" x2="{x:.1f}" y2="{tip_y:.1f}" stroke="{c}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
+        art.append(f'<path d="{drop_path(x, cy, r, up=not wet)}" fill="{c}" opacity="0.75"/>')
+        ly = cy + (r + 13) * (1 if wet else -1) + (3 if wet else 0)
+        art.append(f'<text x="{x:.0f}" y="{ly:.0f}" class="tiny halo" fill="{SUB}" text-anchor="middle">{iso}</text>')
+
+ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
+
+# --- how to read row ---------------------------------------------------------
+def howto():
+    y0 = 1042
+    p = []
+    p.append(f'<text x="{ML - 18}" y="{y0}" class="tinyb" fill="{INK}">HOW TO READ</text>')
+    # mini wet
+    x = ML + 120
+    p.append(f'<line x1="{x}" y1="{y0 - 26}" x2="{x}" y2="{y0 - 4}" stroke="{WET}" stroke-width="1.2" stroke-dasharray="5 4"/>')
+    p.append(f'<path d="{drop_path(x, y0 + 6, 6)}" fill="{WET}"/>')
+    p.append(f'<text x="{x + 14}" y="{y0 - 8}" class="tiny" fill="{SUB}">a flag-drop falling = territory gaining rain;</text>')
+    p.append(f'<text x="{x + 14}" y="{y0 + 6}" class="tiny" fill="{SUB}">how far it fell (and its size) = the shift, in mm of</text>')
+    p.append(f'<text x="{x + 14}" y="{y0 + 20}" class="tiny" fill="{SUB}">annual rainfall anomaly: avg 2020–25 minus avg 1979–2000</text>')
+    x = ML + 450
+    p.append(f'<path d="{drop_path(x, y0 - 14, 6, up=True)}" fill="{DRY}" opacity="0.55"/>')
+    p.append(f'<path d="{drop_path(x, y0 - 14, 6, up=True)}" fill="none" stroke="{DRY_D}" stroke-width="1" stroke-dasharray="3 2.5"/>')
+    p.append(f'<line x1="{x}" y1="{y0 - 2}" x2="{x}" y2="{y0 + 16}" stroke="{DRY}" stroke-width="1.2" stroke-dasharray="2.5 4"/>')
+    p.append(f'<text x="{x + 14}" y="{y0 - 8}" class="tiny" fill="{SUB}">a faded drop rising = territory losing rain,</text>')
+    p.append(f'<text x="{x + 14}" y="{y0 + 6}" class="tiny" fill="{SUB}">its water evaporating back into the sky;</text>')
+    p.append(f'<text x="{x + 14}" y="{y0 + 20}" class="tiny" fill="{SUB}">small plain drops = the other 13 territories</text>')
+    return "".join(p)
+
+GLOSS = " · ".join(f"{iso} {NAMES[iso]}" for iso in ORDER if iso not in FEATURED)
+
+html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Where the Rain Went — A4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * {{ margin:0; padding:0; box-sizing:border-box; }}
+  body {{ background:#e8e4da; display:flex; justify-content:center; padding:24px 0;
+         font-family:'Outfit',sans-serif; }}
+  .sheet {{ width:{W}px; height:{Hpx}px; background:{PAPER}; box-shadow:0 8px 40px rgba(40,50,60,0.25); }}
+  svg {{ display:block; }}
+  .kick   {{ font:600 10.5px 'Outfit',sans-serif; letter-spacing:0.34em; fill:{SUB}; }}
+  .title  {{ font:600 64px 'Fraunces',Georgia,serif; fill:{INK}; }}
+  .title .w {{ fill:{WET}; }} .title .d {{ fill:{DRY}; }}
+  .stand  {{ font:italic 400 15.5px 'Fraunces',Georgia,serif; fill:{SUB}; }}
+  .standb {{ font-style:normal; font-weight:600; fill:{INK}; }}
+  .bignum {{ font:700 30px 'Fraunces',Georgia,serif; }}
+  .biglab {{ font:600 9px 'Outfit',sans-serif; letter-spacing:0.22em; fill:{SUB}; }}
+  .anno   {{ font:italic 500 16px 'Fraunces',Georgia,serif; opacity:0.85; }}
+  .linelab{{ font:600 9.5px 'Outfit',sans-serif; letter-spacing:0.24em; fill:{INK}; }}
+  .name   {{ font:600 12.5px 'Outfit',sans-serif; }}
+  .val    {{ font:700 13.5px 'Outfit',sans-serif; }}
+  .tiny   {{ font:400 9.5px 'Outfit',sans-serif; }}
+  .tinyb  {{ font:600 9.5px 'Outfit',sans-serif; letter-spacing:0.18em; }}
+  .foot   {{ font:400 8.6px 'Outfit',sans-serif; fill:{FAINT}; }}
+  .foot b {{ font-weight:600; fill:{SUB}; }}
+  .halo   {{ paint-order:stroke; stroke:{PAPER}; stroke-width:3.5px; stroke-linejoin:round; }}
+  @media print {{ body {{ background:none; padding:0; }} .sheet {{ box-shadow:none; }} }}
+</style>
+</head>
+<body>
+<div class="sheet">
+<svg viewBox="0 0 {W} {Hpx}" width="{W}" height="{Hpx}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="{W}" height="{Hpx}" fill="{PAPER}"/>
+
+  <!-- header -->
+  <text x="{W / 2}" y="64" class="kick" text-anchor="middle">PACIFIC DATAVIZ CHALLENGE 2026 · RAINFALL ANOMALIES · 22 TERRITORIES · 1979→2025</text>
+  <text x="{W / 2}" y="132" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
+  <text x="{W / 2}" y="172" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat — it redistributes the water.</text>
+  <text x="{W / 2}" y="194" class="stand" text-anchor="middle">Compared with the rain they knew in 1979–2000, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
+  <text x="{W / 2}" y="216" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
+
+  <!-- score -->
+  <text x="{W / 2 - 110}" y="266" class="bignum" fill="{WET_D}" text-anchor="middle">{n_wet}</text>
+  <text x="{W / 2 - 110}" y="282" class="biglab" text-anchor="middle">NOW WETTER</text>
+  <text x="{W / 2}" y="266" class="bignum" fill="{INK}" text-anchor="middle" opacity="0.85">22</text>
+  <text x="{W / 2}" y="282" class="biglab" text-anchor="middle">TERRITORIES</text>
+  <text x="{W / 2 + 110}" y="266" class="bignum" fill="{DRY_D}" text-anchor="middle">{n_dry}</text>
+  <text x="{W / 2 + 110}" y="282" class="biglab" text-anchor="middle">NOW DRIER</text>
+
+  <!-- artwork -->
+  {ART}
+
+  <!-- how to read -->
+  {howto()}
+
+  <!-- footer -->
+  <line x1="{ML - 18}" y1="1096" x2="{W - MR + 18}" y2="1096" stroke="{INK}" stroke-opacity="0.18" stroke-width="0.8"/>
+  <text x="{ML - 18}" y="1114" class="foot"><tspan style="font-weight:600">Data</tspan> SPC Pacific Data Hub · DF_CLIMATE_CHANGE · RAIN_ANOM (annual rainfall anomaly, mm) · 1979–2025.</text>
+  <text x="{ML - 18}" y="1128" class="foot">The recent window includes the 2020–23 triple-dip La Niña, which amplifies — but does not create — the west-wet / centre-dry contrast.</text>
+  <text x="{ML - 18}" y="1144" class="foot">{GLOSS}</text>
+  <text x="{ML - 18}" y="1162" class="foot"><tspan style="font-weight:600">Where the Rain Went</tspan> · Pacific Dataviz Challenge 2026 · Gabriel Carbinatto</text>
+</svg>
+</div>
+</body>
+</html>
+"""
+
+OUT.write_text(html, encoding="utf-8")
+print(f"wrote {OUT} ({len(html) / 1024:.0f} kB)")

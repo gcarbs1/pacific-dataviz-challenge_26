@@ -11,10 +11,20 @@ Tokelau) and New Caledonia are drying out.
 
 ## Files
 
-- `index.html` — the deliverable: a single self-contained long page (open in any browser).
+### A4 art poster (main deliverable)
+- `a4.html` — single A4 page, light background: one artwork where flag-drops fall
+  below "the old balance" line for territories gaining rain (west) and fade upward
+  where rain is being lost (central corridor). x = geography (west→east),
+  drop size + distance from the line = size of the shift.
+- `where-the-rain-went-a4.png` — print-ready export (1680×2376, A4 ratio).
+- `build_a4.py` — generates `a4.html` from the raw data.
+
+### Long-form exploratory page
+- `index.html` — self-contained long page (map, slope chart, per-island rain gauges).
 - `where-the-rain-went.png` — high-resolution (2×) static export of the full page.
-- `build_poster.py` — generates `index.html` from the raw data. No hand-edited numbers:
-  every figure on the page is computed from the CSV.
+- `build_poster.py` — generates `index.html` from the raw data.
+
+No hand-edited numbers in either: every figure is computed from the CSV.
 
 ## Data
 
@@ -25,12 +35,21 @@ Tokelau) and New Caledonia are drying out.
 ## Rebuild
 
 ```sh
-venv/bin/python poster/build_poster.py
+venv/bin/python poster/build_a4.py      # A4 poster
+venv/bin/python poster/build_poster.py  # long page
 ```
 
-## Re-export the PNG
+## Re-export the PNGs
 
 ```sh
+# A4 poster (crop removes the 24px body padding, scaled 2x)
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --hide-scrollbars \
+  --force-device-scale-factor=2 --window-size=840,1236 \
+  --screenshot=/tmp/a4_2x.png "file://$PWD/poster/a4.html"
+venv/bin/python -c "from PIL import Image; Image.open('/tmp/a4_2x.png').crop((0,48,1680,2424)).save('poster/where-the-rain-went-a4.png')"
+
+# long page
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --headless=new --disable-gpu --hide-scrollbars \
   --force-device-scale-factor=2 --window-size=1180,5910 \
