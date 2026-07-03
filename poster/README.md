@@ -11,6 +11,9 @@ Tokelau) and New Caledonia are drying out.
 
 ## The artwork, layer by layer
 
+One artwork fills the page; legend, record notes and credits are arranged
+below it — nothing is written over the art.
+
 1. **Flag-drops** — territories sit at their real west→east order. Drops fall
    below "the old balance" line where rain increased; faded drops evaporate
    upward where it decreased. Distance from the line + drop size = the shift
@@ -18,10 +21,8 @@ Tokelau) and New Caledonia are drying out.
 2. **Barcode stems** — each highlighted stem is the full 47-year series:
    one tick per year (1979 at the line → 2025 at the drop), tick width = that
    year's anomaly, colour = wet/dry year.
-3. **Record callouts** — computed from the data at build time (the build fails
-   if a claim stops being true).
-4. **Medallion strip** — all 22 territories ranked, each with 47 radial spokes
-   (one per year, clockwise from 1979); dotted tips mark the 2020–25 window.
+3. **Record notes** — computed from the data at build time (the build fails
+   if a claim stops being true), set below the sea next to the legend.
 
 ## Files
 

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """
 WHERE THE RAIN WENT — A4 art poster (light background, flag drops).
-One page, one artwork, four layers of information:
+One page, one artwork, nothing written over it:
   1. flag-drops: x = geography (west->east), distance from the "old balance"
      line + drop size = shift between 1979-2000 and 2020-2025 averages
   2. each featured stem is a year-by-year barcode (47 annual anomalies)
-  3. computed record callouts
-  4. medallion strip: all 22 territories, 47 radial spokes each (one per year)
+  3. legend, computed record notes and credits arranged below the art
 
 Builds poster/a4.html from data/rainfall_anomalies/data.csv.
 """
@@ -175,29 +174,30 @@ CAP_UP = {"NR": "#002B7F", "TV": "#75B2DD", "KI": "#005BBB", "NC": "#009543", "T
 # ================================================================ poster =====
 W, Hpx = 840, 1188
 ML, MR = 52, 40
-LINE_Y = 560
-K = 6.0
-def rsize(d): return 6.5 + abs(d) * 0.50
+LINE_Y = 632
+SEA_BOT = 968
+K = 7.4
+def rsize(d): return 7.0 + abs(d) * 0.55
 
 rng = random.Random(20)
 art = []
 
 # --- sky & sea washes --------------------------------------------------------
-art.append(f'<rect x="0" y="{LINE_Y}" width="{W}" height="{848 - LINE_Y}" fill="{SEA}" opacity="0.35"/>')
+art.append(f'<rect x="0" y="{LINE_Y}" width="{W}" height="{SEA_BOT - LINE_Y}" fill="{SEA}" opacity="0.35"/>')
 for i in range(4):
-    y = 806 + i * 11
+    y = SEA_BOT - 42 + i * 11
     seg, x = [f"M -10 {y}"], -10
     while x < W + 10:
         seg.append(f"q 14 {-5 if (x // 14) % 2 == 0 else 5} 28 0")
         x += 28
     art.append(f'<path d="{" ".join(seg)}" fill="none" stroke="{WET}" stroke-opacity="{0.20 - i * 0.04:.2f}" stroke-width="1.1"/>')
-for _ in range(140):
+for _ in range(150):
     x = rng.random() ** 1.7 * 320
-    y = 292 + rng.random() * (LINE_Y - 318)
+    y = 246 + rng.random() * (LINE_Y - 276)
     ln = 6 + rng.random() * 13
     art.append(f'<line x1="{x:.0f}" y1="{y:.0f}" x2="{x + 1.5:.0f}" y2="{y + ln:.0f}" stroke="{WET}" stroke-opacity="{0.06 + rng.random() * 0.15:.2f}" stroke-width="1"/>')
 for i in range(13):
-    y = 290 + i * 5.2
+    y = 242 + i * 5.2
     amp = 3 + rng.random() * 3
     width = 290 - i * 9 + rng.random() * 30
     seg, x = [f"M 0 {y:.0f}"], 0
@@ -205,7 +205,7 @@ for i in range(13):
         seg.append(f"q 11 {-amp:.1f} 22 0")
         x += 22
     art.append(f'<path d="{" ".join(seg)}" fill="none" stroke="{SKY}" stroke-opacity="{0.55 - i * 0.03:.2f}" stroke-width="1.2"/>')
-sx, sy = 768, 326
+sx, sy = 766, 300
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="#f3c34e" opacity="0.9"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="none" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1"/>')
 for i in range(16):
@@ -213,32 +213,33 @@ for i in range(16):
     r2 = 30 + (15 if i % 2 == 0 else 8)
     art.append(f'<line x1="{sx + 30 * math.cos(a):.1f}" y1="{sy + 30 * math.sin(a):.1f}" x2="{sx + r2 * math.cos(a):.1f}" y2="{sy + r2 * math.sin(a):.1f}" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1.1"/>')
 
-art.append(f'<text x="56" y="392" class="anno" fill="{WET_D}">the west fills up</text>')
-art.append(f'<text x="{W - 40}" y="394" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
+art.append(f'<text x="56" y="402" class="anno" fill="{WET_D}">the west fills up</text>')
+art.append(f'<text x="{W - 40}" y="404" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
 
 # --- mm ruler (left margin) --------------------------------------------------
 RX = 26
-art.append(f'<line x1="{RX}" y1="{LINE_Y - 25 * K:.0f}" x2="{RX}" y2="{LINE_Y + 20 * K:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
-for m in range(-20, 26, 5):
+art.append(f'<line x1="{RX}" y1="{LINE_Y - 30 * K:.0f}" x2="{RX}" y2="{LINE_Y + 20 * K:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
+for m in range(-20, 31, 5):
     y = LINE_Y - m * K
     major = m % 10 == 0
     art.append(f'<line x1="{RX}" y1="{y:.0f}" x2="{RX + (6 if major else 3.5)}" y2="{y:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
     if major and m != 0:
         art.append(f'<text x="{RX + 9}" y="{y + 2.5:.0f}" class="rul" fill="{SUB}">{abs(m)}</text>')
 art.append(f'<text x="{RX + 9}" y="{LINE_Y + 2.5}" class="rul" fill="{INK}">0 mm</text>')
-art.append(f'<text transform="rotate(-90 14 {LINE_Y - 78})" x="14" y="{LINE_Y - 78}" class="tinyb" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
-art.append(f'<text transform="rotate(-90 14 {LINE_Y + 66})" x="14" y="{LINE_Y + 66}" class="tinyb" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
+art.append(f'<text transform="rotate(-90 14 {LINE_Y - 108})" x="14" y="{LINE_Y - 108}" class="tinyb" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
+art.append(f'<text transform="rotate(-90 14 {LINE_Y + 80})" x="14" y="{LINE_Y + 80}" class="tinyb" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
 
 # --- the balance line ----------------------------------------------------
 art.append(f'<line x1="{RX}" y1="{LINE_Y}" x2="{W - MR + 18}" y2="{LINE_Y}" stroke="{INK}" stroke-width="1.3"/>')
-art.append(f'<text x="{W / 2}" y="{LINE_Y - 8}" class="linelab halo" text-anchor="middle">THE OLD BALANCE — AVERAGE RAIN OF 1979–2000</text>')
-art.append(f'<text x="{RX}" y="{840}" class="tiny" fill="{FAINT}">← WEST</text>')
-art.append(f'<text x="{W - MR + 18}" y="{840}" class="tiny" fill="{FAINT}" text-anchor="end">EAST →</text>')
-art.append(f'<text x="{W / 2}" y="{840}" class="tiny halo" fill="{FAINT}" text-anchor="middle">territories ordered by longitude, west to east</text>')
+art.append(f'<text x="64" y="{LINE_Y - 23}" class="linelab">THE OLD BALANCE</text>')
+art.append(f'<text x="64" y="{LINE_Y - 10}" class="avg" fill="{SUB}" font-style="italic">average rain of 1979–2000</text>')
+art.append(f'<text x="{RX}" y="{SEA_BOT + 16}" class="tiny" fill="{FAINT}">← WEST</text>')
+art.append(f'<text x="{W - MR + 18}" y="{SEA_BOT + 16}" class="tiny" fill="{FAINT}" text-anchor="end">EAST →</text>')
+art.append(f'<text x="{W / 2}" y="{SEA_BOT + 16}" class="tiny" fill="{FAINT}" text-anchor="middle">territories ordered by longitude, west to east</text>')
 
 # --- drops -------------------------------------------------------------------
 NUDGE = {"FM": (-16, -4), "SB": (16, 28), "VU": (4, 0), "PW": (0, 0),
-         "NR": (0, -8), "TV": (14, 0), "KI": (-14, 0), "NC": (-4, 0), "TK": (0, 0)}
+         "NR": (0, -8), "TV": (14, 0), "KI": (-14, 0), "NC": (-18, 0), "TK": (0, 0)}
 DRIFT = {"FM": -8, "SB": 9}
 
 slot = (W - ML - MR) / len(ORDER)
@@ -256,9 +257,6 @@ for i, iso in enumerate(ORDER):
         tip_y = LINE_Y + stem * sgn
         far_y = cy + r * sgn
         # stem = year-by-year barcode: 1979 at the line -> 2025 at the drop
-        if wet:
-            for ddx in (-6.5, 6.5):
-                art.append(f'<line x1="{x + ddx:.1f}" y1="{LINE_Y + 6}" x2="{x + ddx:.1f}" y2="{tip_y - 2:.1f}" stroke="{WET}" stroke-opacity="0.22" stroke-width="1" stroke-dasharray="5 4"/>')
         yrs = series[iso]
         n = len(yrs)
         for j, (yr_, v) in enumerate(yrs):
@@ -280,16 +278,23 @@ for i, iso in enumerate(ORDER):
             art.append(f'<path d="{dp}" fill="none" stroke="{DRY_D}" stroke-width="1.2" stroke-dasharray="4 3"/>')
         else:
             art.append(f'<path d="{dp}" fill="none" stroke="{INK}" stroke-opacity="0.75" stroke-width="1.2"/>')
-        ndx, ndy = NUDGE.get(iso, (0, 0))
         h_, r_ = stats.loc[iso, "hist"], stats.loc[iso, "rec"]
-        if wet:
-            vy, ny, ay = far_y + 19 + ndy, far_y + 34 + ndy, far_y + 47 + ndy
-        else:
-            ay, ny, vy = far_y - 46 - ndy, far_y - 33 - ndy, far_y - 18 - ndy
         cval = WET_D if wet else DRY_D
-        art.append(f'<text x="{x + ndx:.0f}" y="{vy:.0f}" class="val halo" fill="{cval}" text-anchor="middle">{fmt(d)} mm</text>')
-        art.append(f'<text x="{x + ndx:.0f}" y="{ny:.0f}" class="name halo" fill="{INK}" text-anchor="middle">{NAMES[iso]}</text>')
-        art.append(f'<text x="{x + ndx:.0f}" y="{ay:.0f}" class="avg halo" fill="{SUB}" text-anchor="middle">avg {fmt(h_)} → {fmt(r_)}</text>')
+        if iso == "NC":
+            # label beside the drop, in the clear western sky
+            lx = x - 26
+            art.append(f'<text x="{lx:.0f}" y="{far_y + 1:.0f}" class="val halo" fill="{cval}" text-anchor="end">{fmt(d)} mm</text>')
+            art.append(f'<text x="{lx:.0f}" y="{far_y + 15:.0f}" class="name halo" fill="{INK}" text-anchor="end">{NAMES[iso]}</text>')
+            art.append(f'<text x="{lx:.0f}" y="{far_y + 29:.0f}" class="avg halo" fill="{SUB}" text-anchor="end">avg {fmt(h_)} → {fmt(r_)}</text>')
+        else:
+            ndx, ndy = NUDGE.get(iso, (0, 0))
+            if wet:
+                vy, ny, ay = far_y + 19 + ndy, far_y + 34 + ndy, far_y + 47 + ndy
+            else:
+                ay, ny, vy = far_y - 46 - ndy, far_y - 33 - ndy, far_y - 18 - ndy
+            art.append(f'<text x="{x + ndx:.0f}" y="{vy:.0f}" class="val halo" fill="{cval}" text-anchor="middle">{fmt(d)} mm</text>')
+            art.append(f'<text x="{x + ndx:.0f}" y="{ny:.0f}" class="name halo" fill="{INK}" text-anchor="middle">{NAMES[iso]}</text>')
+            art.append(f'<text x="{x + ndx:.0f}" y="{ay:.0f}" class="avg halo" fill="{SUB}" text-anchor="middle">avg {fmt(h_)} → {fmt(r_)}</text>')
     else:
         r = 2.6 + abs(d) * 0.34
         cy = LINE_Y + (stem + 2.05 * r) * sgn
@@ -300,80 +305,35 @@ for i, iso in enumerate(ORDER):
         ly = cy + (r + 12) * sgn + (3 if wet else 0)
         art.append(f'<text x="{x:.0f}" y="{ly:.0f}" class="tiny halo" fill="{SUB}" text-anchor="middle">{iso}</text>')
 
-# --- computed callouts ---------------------------------------------------
-art.append(f'<g class="callout">'
-           f'<text x="362" y="318" class="call" fill="{INK}">Nauru’s sky has turned manic: <tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019 —</text>'
-           f'<text x="362" y="332" class="call" fill="{INK}">its wettest year on record — then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>'
-           f'<line x1="358" y1="322" x2="334" y2="338" stroke="{SUB}" stroke-width="0.8" stroke-dasharray="2 2"/></g>')
-art.append(f'<g class="callout">'
-           f'<text x="318" y="773" class="call" fill="{INK}">Micronesia’s three wettest years on record have all come</text>'
-           f'<text x="318" y="787" class="call" fill="{INK}">since 2019; the Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)} mm).</text>'
-           f'<line x1="314" y1="776" x2="266" y2="724" stroke="{SUB}" stroke-width="0.8" stroke-dasharray="2 2"/></g>')
-
 ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
 
-# --- medallions: all 22, ranked, 47 spokes each ------------------------------
-def medallion(iso, cx, cy):
-    d = stats.loc[iso, "delta"]
+# --- legend + record notes, arranged below the art ---------------------------
+def below():
     p = []
-    if iso in FEATURED:
-        p.append(f'<circle cx="{cx}" cy="{cy}" r="25.5" fill="none" stroke="{INK}" stroke-opacity="0.35" stroke-width="0.7" stroke-dasharray="2 3"/>')
-    p.append(f'<circle cx="{cx}" cy="{cy}" r="5" fill="{WET if d >= 0 else DRY}" opacity="0.9"/>')
-    yrs = series[iso]
-    n = len(yrs)
-    for j, (yr_, v) in enumerate(yrs):
-        a = math.radians(-90 + j * 360.0 / n)
-        L = 1.2 + min(16.0, abs(v) * 0.24)
-        x1, y1 = cx + 6.5 * math.cos(a), cy + 6.5 * math.sin(a)
-        x2, y2 = cx + (6.5 + L) * math.cos(a), cy + (6.5 + L) * math.sin(a)
-        c = WET if v >= 0 else DRY
-        p.append(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{c}" stroke-opacity="0.85" stroke-width="1"/>')
-        if yr_ >= R0:
-            p.append(f'<circle cx="{x2:.1f}" cy="{y2:.1f}" r="1.1" fill="{INK}" opacity="0.8"/>')
-    p.append(f'<text x="{cx}" y="{cy + 36}" class="mname halo" text-anchor="middle" fill="{INK}">{NAMES[iso]}</text>')
-    p.append(f'<text x="{cx}" y="{cy + 48}" class="mval halo" text-anchor="middle" fill="{WET_D if d >= 0 else DRY_D}">{fmt(d)}</text>')
-    return "".join(p)
-
-MED_Y0 = 872
-meds = []
-ranked = list(stats.sort_values("delta", ascending=False).index)
-meds.append(f'<line x1="{RX}" y1="{MED_Y0 - 18}" x2="{W - MR + 18}" y2="{MED_Y0 - 18}" stroke="{INK}" stroke-opacity="0.18" stroke-width="0.8"/>')
-meds.append(f'<text x="{RX}" y="{MED_Y0 + 2}" class="sect" fill="{INK}">ALL 22 TERRITORIES, RANKED FROM LARGEST GAIN TO DEEPEST LOSS — EVERY YEAR SINCE 1979</text>')
-meds.append(f'<text x="{RX}" y="{MED_Y0 + 16}" class="tiny" fill="{SUB}">47 spokes per medallion, one per year — 12 o’clock = 1979, clockwise to 2025 · length = size of that year’s anomaly · '
-            f'<tspan fill="{WET_D}">■</tspan> wet year · <tspan fill="{DRY_D}">■</tspan> dry year · dotted tips = 2020–2025 · dashed ring = highlighted above</text>')
-cw = (W - RX - (MR - 18) - 14) / 11
-for k, iso in enumerate(ranked):
-    row, colu = divmod(k, 11)
-    cx = RX + 10 + (colu + 0.5) * cw
-    cy = MED_Y0 + 56 + row * 102
-    meds.append(medallion(iso, cx, cy))
-MEDS = "".join(meds)
-
-# --- how to read ---------------------------------------------------------
-def howto():
-    y0 = 246
-    p = []
-    p.append(f'<rect x="{RX}" y="{y0 - 22}" width="{W - RX - MR + 18}" height="54" fill="none" stroke="{INK}" stroke-opacity="0.15" stroke-width="0.8" rx="6"/>')
-    p.append(f'<text x="{RX + 12}" y="{y0 - 4}" class="tinyb" fill="{INK}">HOW TO</text>')
-    p.append(f'<text x="{RX + 12}" y="{y0 + 8}" class="tinyb" fill="{INK}">READ</text>')
-    x = RX + 84
-    p.append(f'<path d="{drop_path(x, y0 + 8, 5.5)}" fill="{WET}"/>')
-    p.append(f'<text x="{x + 11}" y="{y0 - 2}" class="tiny" fill="{SUB}">flag-drop falling = gaining rain;</text>')
-    p.append(f'<text x="{x + 11}" y="{y0 + 9}" class="tiny" fill="{SUB}">distance &amp; size = the shift in mm,</text>')
-    p.append(f'<text x="{x + 11}" y="{y0 + 20}" class="tiny" fill="{SUB}">avg 2020–25 minus avg 1979–2000</text>')
-    x = RX + 290
-    p.append(f'<path d="{drop_path(x, y0 - 2, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
-    p.append(f'<path d="{drop_path(x, y0 - 2, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-width="1" stroke-dasharray="2.5 2"/>')
-    p.append(f'<text x="{x + 11}" y="{y0 - 2}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
-    p.append(f'<text x="{x + 11}" y="{y0 + 9}" class="tiny" fill="{SUB}">evaporating back into the sky;</text>')
-    p.append(f'<text x="{x + 11}" y="{y0 + 20}" class="tiny" fill="{SUB}">small plain drops = the other 13</text>')
-    x = RX + 478
+    y0 = 1022
+    p.append(f'<line x1="{RX}" y1="{y0 - 24}" x2="{W - MR + 18}" y2="{y0 - 24}" stroke="{INK}" stroke-opacity="0.15" stroke-width="0.8"/>')
+    # legend: three quiet groups
+    x = RX + 10
+    p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
+    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling = gaining rain; distance &amp; size</text>')
+    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">= the shift in mm, avg 2020–25 vs avg 1979–2000</text>')
+    x = RX + 268
+    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
+    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-width="1" stroke-dasharray="2.5 2"/>')
+    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain, evaporating</text>')
+    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">back into the sky; plain drops = the other 13</text>')
+    x = RX + 522
     for j, hw in enumerate((3, 6, 2, 7, 4)):
         c = WET if j in (1, 3) else DRY
-        p.append(f'<line x1="{x - hw:.0f}" y1="{y0 - 6 + j * 6}" x2="{x + hw:.0f}" y2="{y0 - 6 + j * 6}" stroke="{c}" stroke-width="1"/>')
-    p.append(f'<text x="{x + 13}" y="{y0 - 2}" class="tiny" fill="{SUB}">each stem is a timeline: one tick per year,</text>')
-    p.append(f'<text x="{x + 13}" y="{y0 + 9}" class="tiny" fill="{SUB}">1979 at the line → 2025 at the drop;</text>')
-    p.append(f'<text x="{x + 13}" y="{y0 + 20}" class="tiny" fill="{SUB}">tick width = that year’s anomaly</text>')
+        p.append(f'<line x1="{x - hw:.0f}" y1="{y0 - 5 + j * 5}" x2="{x + hw:.0f}" y2="{y0 - 5 + j * 5}" stroke="{c}" stroke-width="1"/>')
+    p.append(f'<text x="{x + 13}" y="{y0}" class="tiny" fill="{SUB}">each stem: one tick per year, 1979 at the line</text>')
+    p.append(f'<text x="{x + 13}" y="{y0 + 11}" class="tiny" fill="{SUB}">→ 2025 at the drop; width = that year’s anomaly</text>')
+    # computed record notes
+    ny = y0 + 46
+    p.append(f'<path d="{drop_path(RX + 14, ny - 3, 3.4)}" fill="{DRY}" opacity="0.85"/>')
+    p.append(f'<text x="{RX + 26}" y="{ny}" class="call" fill="{INK}">Nauru’s sky has turned manic: <tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019, its wettest year on record — then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>')
+    p.append(f'<path d="{drop_path(RX + 14, ny + 15, 3.4)}" fill="{WET}" opacity="0.85"/>')
+    p.append(f'<text x="{RX + 26}" y="{ny + 18}" class="call" fill="{INK}">Micronesia’s three wettest years on record have all come since 2019; the Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)} mm).</text>')
     return "".join(p)
 
 html = f"""<!DOCTYPE html>
@@ -429,20 +389,17 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the rain they knew in 1979–2000, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
 
-  <!-- how to read -->
-  {howto()}
-
   <!-- score, in the sky corners -->
-  <text x="56" y="430" class="bignum halo" fill="{WET_D}">{n_wet}</text>
-  <text x="56" y="446" class="biglab halo">TERRITORIES NOW WETTER</text>
-  <text x="{W - 40}" y="430" class="bignum halo" fill="{DRY_D}" text-anchor="end">{n_dry}</text>
-  <text x="{W - 40}" y="446" class="biglab halo" text-anchor="end">TERRITORIES NOW DRIER</text>
+  <text x="56" y="436" class="bignum halo" fill="{WET_D}">{n_wet}</text>
+  <text x="56" y="452" class="biglab halo">TERRITORIES NOW WETTER</text>
+  <text x="{W - 40}" y="436" class="bignum halo" fill="{DRY_D}" text-anchor="end">{n_dry}</text>
+  <text x="{W - 40}" y="452" class="biglab halo" text-anchor="end">TERRITORIES NOW DRIER</text>
 
   <!-- artwork -->
   {ART}
 
-  <!-- medallions -->
-  {MEDS}
+  <!-- legend & notes -->
+  {below()}
 
   <!-- footer -->
   <line x1="{RX}" y1="1124" x2="{W - MR + 18}" y2="1124" stroke="{INK}" stroke-opacity="0.18" stroke-width="0.8"/>
