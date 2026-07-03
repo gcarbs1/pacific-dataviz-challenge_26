@@ -9,20 +9,25 @@ Solomon Islands, Vanuatu, Palau) is getting markedly wetter, while a corridor
 of atoll nations along the equator and the dateline (Nauru, Tuvalu, Kiribati,
 Tokelau) and New Caledonia are drying out.
 
-## The artwork, layer by layer
+## The artwork — the rain compass
 
-One artwork fills the page; legend, record notes and credits are arranged
-below it — nothing is written over the art.
+One circular artwork fills the page; narration lives in the sky corners and a
+single quiet legend line sits at the foot — nothing is written over the art.
 
-1. **Flag-drops** — territories sit at their real west→east order. Drops fall
-   below "the old balance" line where rain increased; faded drops evaporate
-   upward where it decreased. Distance from the line + drop size = the shift
-   (mm), measured against the ruler on the left margin.
-2. **Barcode stems** — each highlighted stem is the full 47-year series:
-   one tick per year (1979 at the line → 2025 at the drop), tick width = that
-   year's anomaly, colour = wet/dry year.
-3. **Record notes** — computed from the data at build time (the build fails
-   if a claim stops being true), set below the sea next to the legend.
+1. **The ring** is each territory's old balance — its average rain of
+   1979–2000. The ocean lies inside the ring, the sky outside. The 22
+   territories sit around it in west→east order (west at the top, clockwise),
+   one equal sector each, every one wearing its simplified flag.
+2. **Flag-drops** fall inward where rain increased (the drop has arrived in
+   the ocean) and evaporate outward, faded and dash-outlined, where rain
+   decreased. Distance from the ring + drop size = the shift in mm, measured
+   against the radial ruler in the 12-o'clock gap.
+3. **Barcode stems** — the nine largest shifts carry their full 47-year
+   series: one tick per year (1979 at the ring → 2025 at the drop), tick
+   width = that year's anomaly, colour = wet/dry year.
+4. **Radial labels** read outward like compass spokes; a small compass with
+   the W→E arrow sits at the centre. Record notes in the corners are computed
+   from the data at build time (the build fails if a claim stops being true).
 
 ## Files
 
