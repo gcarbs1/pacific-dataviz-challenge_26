@@ -28,9 +28,9 @@ single quiet legend line sits at the foot — nothing is written over the art.
    evaporate outward, faded behind a warm solid outline, where rain
    decreased. Distance from the ring + drop size = the shift in mm,
    measured against the radial ruler in the 12-o'clock gap.
-4. **Barcode stems** — the nine largest shifts carry their full 47-year
-   series: one tick per year (1979 at the ring → 2025 at the drop), tick
-   width = that year's anomaly, colour = wet/dry year.
+4. **Water-streaks** — the nine largest shifts leave a tapered trail from
+   the old balance to today's drop, fading back toward the ring: blue
+   streaks run down into the ocean, warm ones rise into the sky.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
    format for all 22 territories — country name, shift beneath it — placed
    past the drop so no text is ever written over the artwork. A small
