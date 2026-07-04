@@ -18,14 +18,19 @@ single quiet legend line sits at the foot — nothing is written over the art.
    1979–2000. The ocean lies inside the ring, the sky outside. The 22
    territories sit around it in west→east order (west at the top, clockwise),
    one equal sector each, every one wearing its simplified flag.
-2. **Flag-drops** fall inward where rain increased (the drop has arrived in
+2. **The ocean** — engraved water: dozens of hairline contour rings over a
+   soft depth gradient, like the line-work of an etching; each territory sits
+   at a gently hand-jittered angle so the compass breathes instead of ticking
+   like a clock.
+3. **Flag-drops** rendered as glass — specular highlight, inner shading, a
+   soft shadow — fall inward where rain increased (the drop has arrived in
    the ocean) and evaporate outward, faded and dash-outlined, where rain
    decreased. Distance from the ring + drop size = the shift in mm, measured
    against the radial ruler in the 12-o'clock gap.
-3. **Barcode stems** — the nine largest shifts carry their full 47-year
+4. **Barcode stems** — the nine largest shifts carry their full 47-year
    series: one tick per year (1979 at the ring → 2025 at the drop), tick
    width = that year's anomaly, colour = wet/dry year.
-4. **Radial labels** read outward like compass spokes; a small compass with
+5. **Radial labels** read outward like compass spokes; a small compass with
    the W→E arrow sits at the centre. Record notes in the corners are computed
    from the data at build time (the build fails if a claim stops being true).
 

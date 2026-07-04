@@ -274,43 +274,81 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 W, Hpx = 840, 1188
 CX, CY = 420.0, 662.0
 RB = 215.0                      # the old-balance ring
-K = 4.4                         # px per mm of shift
+K = 4.2                         # px per mm of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
 A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
 
+# a little organic breathing room: hand-tuned angular offsets, in degrees
+AJIT = {"GU": 1.2, "PG": -1.6, "MP": 0.8, "FM": -4.5, "SB": 4.5, "NC": -2.4,
+        "NR": 2.2, "VU": -1.2, "MH": 1.4, "KI": 1.5, "FJ": -1.0, "TV": -1.5,
+        "WF": 1.0, "TO": -0.9, "WS": 1.2, "TK": -1.0, "NU": 0.8, "AS": -1.3,
+        "CK": 1.0, "PF": -0.9, "PN": 1.3}
+
 def ang(iso):
-    return math.radians(A0 + SPAN * ORDER.index(iso) / (len(ORDER) - 1))
+    return math.radians(A0 + SPAN * ORDER.index(iso) / (len(ORDER) - 1) + AJIT.get(iso, 0.0))
 
 def pt(r, a):
     return CX + r * math.cos(a), CY + r * math.sin(a)
 
 def rsize(d):
-    return 6.0 + abs(d) * 0.42
+    return 7.0 + abs(d) * 0.48
 
 rng = random.Random(20)
 defs, art = [], []
+defs.append('<filter id="ds" x="-40%" y="-40%" width="180%" height="180%">'
+            '<feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#22313b" flood-opacity="0.32"/></filter>')
+# water-glass rendering for the drops (bbox-relative; head sits low on falling
+# drops, high on rising ones)
+defs.append('''<radialGradient id="hiW" cx="0.36" cy="0.60" r="0.34">
+  <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
+  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0.55" stop-color="#22313b" stop-opacity="0"/>
+  <stop offset="1" stop-color="#22313b" stop-opacity="0.22"/></linearGradient>
+<radialGradient id="hiU" cx="0.36" cy="0.24" r="0.34">
+  <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
+  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
+<linearGradient id="shU" x1="0" y1="1" x2="0" y2="0">
+  <stop offset="0.55" stop-color="#22313b" stop-opacity="0"/>
+  <stop offset="1" stop-color="#22313b" stop-opacity="0.18"/></linearGradient>
+<radialGradient id="sun2" cx="0.4" cy="0.38" r="0.75">
+  <stop offset="0" stop-color="#ffe07f"/>
+  <stop offset="1" stop-color="#efba3e"/></radialGradient>''')
 
-# --- ocean disc, wave rings, sky ----------------------------------------------
-art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="{SEA}" opacity="0.35"/>')
-for i, rr in enumerate((RB - 16, RB - 30, RB - 44, RB - 58)):
+# --- the ocean: engraved water, line by line ------------------------------------
+defs.append(f'''<radialGradient id="sea" cx="0.5" cy="0.46" r="0.62">
+  <stop offset="0" stop-color="#f4fafc"/>
+  <stop offset="0.62" stop-color="{SEA}" stop-opacity="0.45"/>
+  <stop offset="1" stop-color="#bcdbe7" stop-opacity="0.7"/>
+</radialGradient>''')
+art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="url(#sea)"/>')
+n_eng = 34
+for i in range(n_eng):
+    rr = 26 + (RB - 34) * i / (n_eng - 1)
+    amp = 1.1 + 1.1 * rr / RB
+    ph = rng.random() * 6.28
+    freq = 11 + (i % 5)
     pts = []
-    for j in range(121):
-        th = j * 2 * math.pi / 120
-        r2 = rr + 2.2 * math.sin(th * 18 + i * 1.7)
+    for j in range(141):
+        th = j * 2 * math.pi / 140
+        r2 = rr + amp * math.sin(th * freq + ph)
         x, y = pt(r2, th)
         pts.append(f"{'M' if j == 0 else 'L'} {x:.1f} {y:.1f}")
-    art.append(f'<path d="{" ".join(pts)} Z" fill="none" stroke="{WET}" stroke-opacity="{0.20 - i * 0.045:.2f}" stroke-width="1.1"/>')
+    op = 0.045 + 0.085 * (rr / RB) ** 1.6
+    art.append(f'<path d="{" ".join(pts)} Z" fill="none" stroke="{WET}" stroke-opacity="{op:.3f}" stroke-width="0.7"/>')
+
 # sun in the top-right sky
 sx, sy = 758, 288
-art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="#f3c34e" opacity="0.9"/>')
-art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="none" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1"/>')
-for i in range(16):
-    a = math.radians(i * 22.5)
-    r2 = 30 + (15 if i % 2 == 0 else 8)
-    art.append(f'<line x1="{sx + 30 * math.cos(a):.1f}" y1="{sy + 30 * math.sin(a):.1f}" x2="{sx + r2 * math.cos(a):.1f}" y2="{sy + r2 * math.sin(a):.1f}" stroke="{DRY}" stroke-opacity="0.5" stroke-width="1.1"/>')
+art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="url(#sun2)"/>')
+art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="none" stroke="{DRY}" stroke-opacity="0.45" stroke-width="0.9"/>')
+for i in range(24):
+    a = math.radians(i * 15 + 4)
+    r2 = 29 + (14 if i % 2 == 0 else 7) * (0.8 + 0.4 * rng.random())
+    art.append(f'<line x1="{sx + 29 * math.cos(a):.1f}" y1="{sy + 29 * math.sin(a):.1f}" x2="{sx + r2 * math.cos(a):.1f}" y2="{sy + r2 * math.sin(a):.1f}" stroke="{DRY}" stroke-opacity="0.42" stroke-width="0.9"/>')
 
-# --- the balance ring -----------------------------------------------------------
+# --- the balance ring: engraved bezel ---------------------------------------------
+art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB + 4}" fill="none" stroke="{INK}" stroke-opacity="0.22" stroke-width="0.6"/>')
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="none" stroke="{INK}" stroke-width="1.3"/>')
 
 # --- radial mm ruler in the 12-o'clock gap ---------------------------------------
@@ -322,10 +360,10 @@ for m in range(-20, 31, 5):
     major = m % 10 == 0
     art.append(f'<line x1="{CX}" y1="{y:.0f}" x2="{CX + (6 if major else 3.5)}" y2="{y:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
     if major and m != 0:
-        art.append(f'<text x="{CX + 9}" y="{y + 2.5:.0f}" class="rul" fill="{SUB}">{abs(m)}</text>')
-art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul" fill="{INK}">0 mm</text>')
-art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
-art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
+        art.append(f'<text x="{CX + 9}" y="{y + 2.5:.0f}" class="rul halo" fill="{SUB}">{abs(m)}</text>')
+art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{INK}">0 mm</text>')
+art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb halo" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
+art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb halo" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
 art.append(f'<text x="{CX}" y="{RT - 26:.0f}" class="linelab" text-anchor="middle">THE OLD BALANCE</text>')
 art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring — average rain of 1979–2000</text>')
 
@@ -349,8 +387,8 @@ art.append(f'<polygon points="{cx1 + 3.2 * math.cos(ca1):.1f},{cy1 + 3.2 * math.
            f'fill="{SUB}" fill-opacity="0.8"/>')
 wx, wy = pt(41, math.radians(-72))
 ex, ey = pt(41, math.radians(2))
-art.append(f'<text x="{wx:.0f}" y="{wy + 3:.0f}" class="rul" fill="{SUB}" text-anchor="middle">W</text>')
-art.append(f'<text x="{ex:.0f}" y="{ey + 3:.0f}" class="rul" fill="{SUB}" text-anchor="middle">E</text>')
+art.append(f'<text x="{wx:.0f}" y="{wy + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">W</text>')
+art.append(f'<text x="{ex:.0f}" y="{ey + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">E</text>')
 
 # --- the 22 territories, radially -------------------------------------------------
 NUDGE = {"NC": -14, "NR": -12}   # hand-tuned extra radial offset for a label, in px
@@ -382,13 +420,17 @@ for iso in ORDER:
     dp = drop_path(0, cy_l, r, up=not wet)
     defs.append(f'<clipPath id="c{iso}"><path d="{dp}"/></clipPath>')
     cap = (CAP if wet else CAP_UP).get(iso, WET)
-    g.append(f'<path d="{dp}" fill="{cap}"/>')
+    g.append(f'<path d="{dp}" fill="{cap}" filter="url(#ds)"/>')
     fw, fh = 2.35 * r, 1.55 * r
     g.append(f'<g clip-path="url(#c{iso})"><g transform="translate({-fw / 2:.1f},{cy_l - fh / 2:.1f}) scale({fw / 100:.3f},{fh / 64:.3f})">{flag_svg2(iso)}</g></g>')
     if not wet:
         g.append(f'<path d="{dp}" fill="{PAPER}" opacity="0.34"/>')
+        g.append(f'<path d="{dp}" fill="url(#shU)"/>')
+        g.append(f'<path d="{dp}" fill="url(#hiU)"/>')
         g.append(f'<path d="{dp}" fill="none" stroke="{DRY_D}" stroke-width="1.2" stroke-dasharray="4 3"/>')
     else:
+        g.append(f'<path d="{dp}" fill="url(#shW)"/>')
+        g.append(f'<path d="{dp}" fill="url(#hiW)"/>')
         g.append(f'<path d="{dp}" fill="none" stroke="{INK}" stroke-opacity="0.75" stroke-width="1.2"/>')
     g.append("</g>")
     art.append("".join(g))
@@ -482,7 +524,7 @@ html = f"""<!DOCTYPE html>
   svg {{ display:block; }}
   .kick   {{ font:600 10px 'Outfit',sans-serif; letter-spacing:0.32em; fill:{SUB}; }}
   .title  {{ font:600 58px 'Fraunces',Georgia,serif; fill:{INK}; }}
-  .title .w {{ fill:{WET}; }}
+  .title .w {{ fill:{WET}; font-style:italic; }}
   .stand  {{ font:italic 400 14.5px 'Fraunces',Georgia,serif; fill:{SUB}; }}
   .standb {{ font-style:normal; font-weight:600; fill:{INK}; }}
   .cap    {{ font:400 10px 'Outfit',sans-serif; fill:{FAINT}; }}
@@ -517,7 +559,7 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat — it redistributes the water.</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the rain they knew in 1979–2000, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories in west → east order around the ring, one sector each · the ocean lies inside the ring, the sky outside</text>
+  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories in west → east order around the ring · the ocean lies inside the ring, the sky outside</text>
 
   <!-- sky corners -->
   {corners()}
