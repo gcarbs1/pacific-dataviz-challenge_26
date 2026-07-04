@@ -41,9 +41,11 @@ single quiet legend line sits at the foot — nothing is written over the art.
 ## Files
 
 - `a4.html` — the poster (open in any browser; prints clean on A4).
-- `where-the-rain-went-a4.png` — print-ready export (1680×2376, A4 ratio).
+- `where-the-rain-went-a4.pdf` — print-ready vector A4 export (text and
+  artwork stay vector, resolution-independent).
 - `build_a4.py` — generates `a4.html` from the raw data. No hand-edited
   numbers: every figure on the page is computed from the CSV.
+- `export_pdf.sh` — rebuilds the HTML and exports the PDF in one step.
 
 ## Data
 
@@ -54,11 +56,8 @@ single quiet legend line sits at the foot — nothing is written over the art.
 ## Rebuild & export
 
 ```sh
-venv/bin/python poster/build_a4.py
-
-"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --headless=new --disable-gpu --hide-scrollbars \
-  --force-device-scale-factor=2 --window-size=840,1236 \
-  --screenshot=/tmp/a4_2x.png "file://$PWD/poster/a4.html"
-venv/bin/python -c "from PIL import Image; Image.open('/tmp/a4_2x.png').crop((0,48,1680,2424)).save('poster/where-the-rain-went-a4.png')"
+poster/export_pdf.sh
 ```
+
+(Regenerates `a4.html` from the CSV, then prints it to a vector A4 PDF with
+headless Chrome.)

@@ -31,7 +31,9 @@
   .tinyb  { font:600 9.3px 'Outfit',sans-serif; letter-spacing:0.16em; }
   .rul    { font:400 8px 'Outfit',sans-serif; }
   .halo   { paint-order:stroke; stroke:#fbf7ee; stroke-width:3.5px; stroke-linejoin:round; }
-  @media print { body { background:none; padding:0; } .sheet { box-shadow:none; } }
+  @page { size: 210mm 297mm; margin: 0; }
+  /* 210mm = 793.7px, so the 840px sheet zooms by 793.7/840 to fill A4 exactly */
+  @media print { body { background:none; padding:0; margin:0; } .sheet { box-shadow:none; zoom:0.94488; } }
 </style>
 </head>
 <body>
