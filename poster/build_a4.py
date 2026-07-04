@@ -371,6 +371,7 @@ for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)
 
 # sun in the top-right sky
 sx, sy = 758, 288
+art.append(f'<circle cx="{sx}" cy="{sy}" r="100" fill="url(#glow)" opacity="0.4"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="58" fill="url(#glow)"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="url(#sun2)"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="none" stroke="{DRY}" stroke-opacity="0.45" stroke-width="0.9"/>')
@@ -381,6 +382,12 @@ for i in range(24):
 
 # --- the balance ring: engraved bezel ---------------------------------------------
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="none" stroke="{INK}" stroke-width="1.3"/>')
+# bezel ticks: each territory's berth on the old balance
+for iso_ in ORDER:
+    a_ = ang(iso_)
+    tx1, ty1 = pt(RB - 3.5, a_)
+    tx2, ty2 = pt(RB + 3.5, a_)
+    art.append(f'<line x1="{tx1:.1f}" y1="{ty1:.1f}" x2="{tx2:.1f}" y2="{ty2:.1f}" stroke="{INK}" stroke-opacity="0.35" stroke-width="1"/>')
 
 # --- radial mm ruler in the 12-o'clock gap ---------------------------------------
 RT = CY - RB - 30 * K           # outer end (30 mm lost)
@@ -443,6 +450,7 @@ for iso in ORDER:
         mid = (y0_ + tip_l) / 2
         g.append(f'<path d="M {-w_:.1f} {y0_:.1f} Q {-0.25 * w_:.1f} {mid:.1f} 0 {tip_l:.1f} '
                  f'Q {0.25 * w_:.1f} {mid:.1f} {w_:.1f} {y0_:.1f} Z" fill="url(#{"trW" if wet else "trU"})"/>')
+        g.append(f'<line x1="0" y1="{y0_:.1f}" x2="0" y2="{tip_l:.1f}" stroke="{WET_D if wet else DRY_D}" stroke-opacity="0.18" stroke-width="0.7"/>')
     else:
         c = WET if wet else DRY
         g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
@@ -539,10 +547,12 @@ def below():
     p.append(f'<line x1="60" y1="{y0 - 26}" x2="{W - 60}" y2="{y0 - 26}" stroke="{INK}" stroke-opacity="0.15" stroke-width="0.8"/>')
     x = 72
     p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
+    p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain;</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2000</text>')
     x = 330
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
+    p.append(f'<circle cx="{x + 1.7}" cy="{y0 - 2.2}" r="1.5" fill="#ffffff" opacity="0.4"/>')
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">evaporating back into the sky</text>')
@@ -600,9 +610,11 @@ html = f"""<!DOCTYPE html>
 <svg viewBox="0 0 {W} {Hpx}" width="{W}" height="{Hpx}" xmlns="http://www.w3.org/2000/svg">
   <rect width="{W}" height="{Hpx}" fill="{PAPER}"/>
 
-  <!-- tapa frame -->
+  <!-- tapa frame, woven all the way round -->
   {"".join(f'<path d="M {xx} 14 L {xx + 7} 6 L {xx + 14} 14" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for xx in range(14, W - 18, 22))}
   {"".join(f'<path d="M {xx} 1174 L {xx + 7} 1182 L {xx + 14} 1174" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for xx in range(14, W - 18, 22))}
+  {"".join(f'<path d="M 14 {yy} L 6 {yy + 7} L 14 {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for yy in range(26, 1156, 22))}
+  {"".join(f'<path d="M {W - 14} {yy} L {W - 6} {yy + 7} L {W - 14} {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for yy in range(26, 1156, 22))}
 
   <!-- header -->
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
