@@ -297,24 +297,37 @@ def rsize(d):
 rng = random.Random(20)
 defs, art = [], []
 defs.append('<filter id="ds" x="-40%" y="-40%" width="180%" height="180%">'
-            '<feDropShadow dx="0" dy="0" stdDeviation="2.2" flood-color="#22313b" flood-opacity="0.32"/></filter>')
-# water-glass rendering for the drops (bbox-relative; head sits low on falling
-# drops, high on rising ones)
-defs.append('''<radialGradient id="hiW" cx="0.36" cy="0.60" r="0.34">
-  <stop offset="0" stop-color="#ffffff" stop-opacity="0.55"/>
-  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
+            '<feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="#22313b" flood-opacity="0.20"/></filter>')
+defs.append('<filter id="dsU" x="-40%" y="-40%" width="180%" height="180%">'
+            '<feDropShadow dx="0" dy="0" stdDeviation="2.0" flood-color="#22313b" flood-opacity="0.12"/></filter>')
+defs.append('<filter id="bl2" x="-80%" y="-80%" width="260%" height="260%">'
+            '<feGaussianBlur stdDeviation="2.4"/></filter>')
+# water-glass rendering for the drops: axis shading along the fall, plus a
+# specular pair placed per-drop so every highlight faces the page's one sun
+defs.append('''<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
   <stop offset="0.55" stop-color="#22313b" stop-opacity="0"/>
   <stop offset="1" stop-color="#22313b" stop-opacity="0.22"/></linearGradient>
-<radialGradient id="hiU" cx="0.36" cy="0.24" r="0.34">
-  <stop offset="0" stop-color="#ffffff" stop-opacity="0.5"/>
-  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
 <linearGradient id="shU" x1="0" y1="1" x2="0" y2="0">
   <stop offset="0.55" stop-color="#22313b" stop-opacity="0"/>
   <stop offset="1" stop-color="#22313b" stop-opacity="0.18"/></linearGradient>
+<radialGradient id="spec" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+  <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
 <radialGradient id="sun2" cx="0.4" cy="0.38" r="0.75">
   <stop offset="0" stop-color="#ffe07f"/>
-  <stop offset="1" stop-color="#efba3e"/></radialGradient>''')
+  <stop offset="1" stop-color="#efba3e"/></radialGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="#ffdf7a" stop-opacity="0.55"/>
+  <stop offset="0.55" stop-color="#ffdf7a" stop-opacity="0.20"/>
+  <stop offset="1" stop-color="#ffdf7a" stop-opacity="0"/></radialGradient>
+<radialGradient id="rim" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0.82" stop-color="#4f7f96" stop-opacity="0"/>
+  <stop offset="0.965" stop-color="#4f7f96" stop-opacity="0.14"/>
+  <stop offset="1" stop-color="#3f6e85" stop-opacity="0.26"/></radialGradient>
+<filter id="grain" x="0" y="0" width="100%" height="100%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/>
+  <feColorMatrix type="matrix" values="0 0 0 0 0.13  0 0 0 0 0.18  0 0 0 0 0.22  0 0 0 0.05 0"/>
+</filter>''')
 
 # --- the horizon: one line ties the page together --------------------------------
 art.append(f'<line x1="22" y1="{CY:.0f}" x2="{W - 22}" y2="{CY:.0f}" stroke="{INK}" stroke-opacity="0.12" stroke-width="0.8"/>')
@@ -338,11 +351,21 @@ for i in range(n_eng):
         r2 = rr + amp * math.sin(th * freq + ph)
         x, y = pt(r2, th)
         pts.append(f"{'M' if j == 0 else 'L'} {x:.1f} {y:.1f}")
-    op = 0.045 + 0.085 * (rr / RB) ** 1.6
+    op = 0.05 + 0.10 * (rr / RB) ** 1.6
     art.append(f'<path d="{" ".join(pts)} Z" fill="none" stroke="{WET}" stroke-opacity="{op:.3f}" stroke-width="0.7"/>')
+
+# depth at the water's edge, and a sheen where the sun strikes it
+art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="url(#rim)"/>')
+for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)):
+    x0_, y0_ = pt(rr_, math.radians(a0_))
+    x1_, y1_ = pt(rr_, math.radians(a1_))
+    art.append(f'<path d="M {x0_:.1f} {y0_:.1f} A {rr_} {rr_} 0 0 1 {x1_:.1f} {y1_:.1f}" '
+               f'fill="none" stroke="#ffffff" stroke-opacity="{o_}" stroke-width="{w_}" '
+               f'stroke-linecap="round" filter="url(#bl2)"/>')
 
 # sun in the top-right sky
 sx, sy = 758, 288
+art.append(f'<circle cx="{sx}" cy="{sy}" r="58" fill="url(#glow)"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="url(#sun2)"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="none" stroke="{DRY}" stroke-opacity="0.45" stroke-width="0.9"/>')
 for i in range(24):
@@ -351,7 +374,6 @@ for i in range(24):
     art.append(f'<line x1="{sx + 29 * math.cos(a):.1f}" y1="{sy + 29 * math.sin(a):.1f}" x2="{sx + r2 * math.cos(a):.1f}" y2="{sy + r2 * math.sin(a):.1f}" stroke="{DRY}" stroke-opacity="0.42" stroke-width="0.9"/>')
 
 # --- the balance ring: engraved bezel ---------------------------------------------
-art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB + 4}" fill="none" stroke="{INK}" stroke-opacity="0.22" stroke-width="0.6"/>')
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="none" stroke="{INK}" stroke-width="1.3"/>')
 
 # --- radial mm ruler in the 12-o'clock gap ---------------------------------------
@@ -394,7 +416,6 @@ art.append(f'<text x="{wx:.0f}" y="{wy + 3:.0f}" class="rul halo" fill="{SUB}" t
 art.append(f'<text x="{ex:.0f}" y="{ey + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">E</text>')
 
 # --- the 22 territories, radially -------------------------------------------------
-NUDGE = {"NC": -18, "NR": -16, "TK": -12}   # hand-tuned extra radial offset for a label, in px
 
 for iso in ORDER:
     d = float(stats.loc[iso, "delta"])
@@ -423,26 +444,42 @@ for iso in ORDER:
     dp = drop_path(0, cy_l, r, up=not wet)
     defs.append(f'<clipPath id="c{iso}"><path d="{dp}"/></clipPath>')
     cap = (CAP if wet else CAP_UP).get(iso, WET)
-    g.append(f'<path d="{dp}" fill="{cap}" filter="url(#ds)"/>')
+
+    # one sun lights the whole page (top-right): highlight and cast-shadow
+    # directions are rotated back into this drop's local frame
+    def loc(vx, vy, _r=math.radians(deg)):
+        return (vx * math.cos(_r) + vy * math.sin(_r),
+                -vx * math.sin(_r) + vy * math.cos(_r))
+
+    if wet:
+        # the drop's soft shadow on the water
+        sxl, syl = loc(-3.5, 4.5)
+        g.append(f'<ellipse cx="{sxl:.1f}" cy="{cy_l + syl:.1f}" rx="{0.94 * r:.1f}" ry="{0.86 * r:.1f}" fill="{INK}" opacity="0.10" filter="url(#bl2)"/>')
+    g.append(f'<path d="{dp}" fill="{cap}" filter="url(#{"ds" if wet else "dsU"})"/>')
     fw, fh = 2.35 * r, 1.55 * r
     g.append(f'<g clip-path="url(#c{iso})"><g transform="translate({-fw / 2:.1f},{cy_l - fh / 2:.1f}) scale({fw / 100:.3f},{fh / 64:.3f})">{flag_svg2(iso)}</g></g>')
+    h1x, h1y = loc(0.30 * r, -0.34 * r)
+    h2x, h2y = loc(0.42 * r, -0.46 * r)
+    spec = (f'<g clip-path="url(#c{iso})">'
+            f'<circle cx="{h1x:.1f}" cy="{cy_l + h1y:.1f}" r="{0.62 * r:.1f}" fill="url(#spec)" opacity="0.55"/>'
+            f'<circle cx="{h2x:.1f}" cy="{cy_l + h2y:.1f}" r="{0.26 * r:.1f}" fill="url(#spec)" opacity="0.95"/></g>')
     if not wet:
         g.append(f'<path d="{dp}" fill="{PAPER}" opacity="0.34"/>')
         g.append(f'<path d="{dp}" fill="url(#shU)"/>')
-        g.append(f'<path d="{dp}" fill="url(#hiU)"/>')
-        g.append(f'<path d="{dp}" fill="none" stroke="{DRY_D}" stroke-width="1.2" stroke-dasharray="4 3"/>')
+        g.append(f'<g opacity="0.4">{spec}</g>')
+        g.append(f'<path d="{dp}" fill="none" stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1.2"/>')
     else:
         g.append(f'<path d="{dp}" fill="url(#shW)"/>')
-        g.append(f'<path d="{dp}" fill="url(#hiW)"/>')
+        g.append(spec)
         g.append(f'<path d="{dp}" fill="none" stroke="{INK}" stroke-opacity="0.75" stroke-width="1.2"/>')
     g.append("</g>")
     art.append("".join(g))
 
-    # radial labels in the sky, reading outward like compass spokes
+    # radial labels in the sky, reading outward like compass spokes; every
+    # territory gets the same two lines — country name, shift beneath it
     a_deg = math.degrees(a)
     right = a_deg <= 90.0
-    r0 = (RB + 10) if wet else (RB + stem + 3.05 * r + 10)
-    r0 += NUDGE.get(iso, 0)
+    r0 = (RB + 10.0) if wet else (RB + stem + 3.05 * r + 12.0)
     perp = (-math.sin(a), math.cos(a))
     off_sign = 1 if right else -1
     cval = WET_D if wet else DRY_D
@@ -461,11 +498,11 @@ for iso in ORDER:
                 f'text-anchor="{anc}" dominant-baseline="middle" {tr}>{txt}</text>')
 
     if feat:
-        h_, r_ = stats.loc[iso, "hist"], stats.loc[iso, "rec"]
-        art.append(radial_text(f'{NAMES[iso]} <tspan fill="{cval}">{fmt(d)} mm</tspan>', "name", 0))
-        art.append(radial_text(f'avg {fmt(h_)} → {fmt(r_)}', "avg", 1, SUB))
+        art.append(radial_text(NAMES[iso], "name", 0))
+        art.append(radial_text(f'{fmt(d)} mm', "val", 1, cval))
     else:
-        art.append(radial_text(f'{NAMES[iso]} <tspan fill="{cval}" font-weight="700">{fmt(d)}</tspan>', "sname", 0))
+        art.append(radial_text(NAMES[iso], "sname", 0))
+        art.append(radial_text(fmt(d), "sval", 1, cval))
 
 ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
 
@@ -501,7 +538,7 @@ def below():
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2000</text>')
     x = 330
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
-    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-width="1" stroke-dasharray="2.5 2"/>')
+    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">evaporating back into the sky</text>')
     x = 570
@@ -541,6 +578,7 @@ html = f"""<!DOCTYPE html>
   .val    {{ font:700 13px 'Outfit',sans-serif; }}
   .avg    {{ font:400 8.6px 'Outfit',sans-serif; }}
   .sname  {{ font:500 9.5px 'Outfit',sans-serif; }}
+  .sval   {{ font:700 10px 'Outfit',sans-serif; }}
   .tiny   {{ font:400 9.3px 'Outfit',sans-serif; }}
   .tinyb  {{ font:600 9.3px 'Outfit',sans-serif; letter-spacing:0.16em; }}
   .rul    {{ font:400 8px 'Outfit',sans-serif; }}
@@ -573,6 +611,9 @@ html = f"""<!DOCTYPE html>
 
   <!-- legend -->
   {below()}
+
+  <!-- print grain -->
+  <rect width="{W}" height="{Hpx}" filter="url(#grain)" opacity="0.6"/>
 </svg>
 </div>
 </body>

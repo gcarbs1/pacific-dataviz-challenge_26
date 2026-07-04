@@ -22,17 +22,21 @@ single quiet legend line sits at the foot — nothing is written over the art.
    soft depth gradient, like the line-work of an etching; each territory sits
    at a gently hand-jittered angle so the compass breathes instead of ticking
    like a clock.
-3. **Flag-drops** rendered as glass — specular highlight, inner shading, a
-   soft shadow — fall inward where rain increased (the drop has arrived in
-   the ocean) and evaporate outward, faded and dash-outlined, where rain
-   decreased. Distance from the ring + drop size = the shift in mm, measured
-   against the radial ruler in the 12-o'clock gap.
+3. **Flag-drops** rendered as glass — a specular pair lit by the page's one
+   sun (top-right), inner shading, a soft cast shadow on the water — fall
+   inward where rain increased (the drop has arrived in the ocean) and
+   evaporate outward, faded behind a warm solid outline, where rain
+   decreased. Distance from the ring + drop size = the shift in mm,
+   measured against the radial ruler in the 12-o'clock gap.
 4. **Barcode stems** — the nine largest shifts carry their full 47-year
    series: one tick per year (1979 at the ring → 2025 at the drop), tick
    width = that year's anomaly, colour = wet/dry year.
-5. **Radial labels** read outward like compass spokes; a small compass with
-   the W→E arrow sits at the centre. Record notes in the corners are computed
-   from the data at build time (the build fails if a claim stops being true).
+5. **Radial labels** read outward like compass spokes, one uniform two-line
+   format for all 22 territories — country name, shift beneath it — placed
+   past the drop so no text is ever written over the artwork. A small
+   compass with the W→E arrow sits at the centre. Record notes in the
+   corners are computed from the data at build time (the build fails if a
+   claim stops being true).
 
 ## Files
 
