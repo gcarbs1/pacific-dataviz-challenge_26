@@ -329,9 +329,6 @@ defs.append('''<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
   <feColorMatrix type="matrix" values="0 0 0 0 0.13  0 0 0 0 0.18  0 0 0 0 0.22  0 0 0 0.05 0"/>
 </filter>''')
 
-# --- the horizon: one line ties the page together --------------------------------
-art.append(f'<line x1="22" y1="{CY:.0f}" x2="{W - 22}" y2="{CY:.0f}" stroke="{INK}" stroke-opacity="0.12" stroke-width="0.8"/>')
-
 # --- the ocean: engraved water, line by line ------------------------------------
 defs.append(f'''<radialGradient id="sea" cx="0.5" cy="0.46" r="0.62">
   <stop offset="0" stop-color="#f4fafc"/>
@@ -503,7 +500,7 @@ for iso in ORDER:
         art.append(radial_text(f'{fmt(d)} mm', "val", 1, cval))
     else:
         art.append(radial_text(NAMES[iso], "sname", 0))
-        art.append(radial_text(fmt(d), "sval", 1, cval))
+        art.append(radial_text(f'{fmt(d)} mm', "sval", 1, cval))
 
 ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
 
@@ -560,7 +557,7 @@ html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Where the Rain Went — A4</title>
+<title>Where the Rain Went</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
