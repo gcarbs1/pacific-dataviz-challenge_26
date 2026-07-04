@@ -23,7 +23,7 @@ df = pd.read_csv(ROOT / "data" / "rainfall_anomalies" / "data.csv")
 df = df[["GEO_PICT", "TIME_PERIOD", "OBS_VALUE"]].rename(
     columns={"GEO_PICT": "iso", "TIME_PERIOD": "year", "OBS_VALUE": "v"}
 )
-H0, H1, R0, R1 = 1979, 2000, 2020, 2025
+H0, H1, R0, R1 = 1979, 2019, 2020, 2025
 hist = df[df.year.between(H0, H1)].groupby("iso")["v"].mean()
 rec = df[df.year.between(R0, R1)].groupby("iso")["v"].mean()
 stats = pd.DataFrame({"hist": hist, "rec": rec})
@@ -46,9 +46,8 @@ LONG = {
     "WS": 187.9, "TK": 188.2, "NU": 190.1, "AS": 190.6, "CK": 200.2,
     "PF": 211.5, "PN": 229.9,
 }
-FEAT_WET = ["FM", "SB", "VU", "PW"]
-FEAT_DRY = ["NR", "TV", "KI", "NC", "TK"]
-FEATURED = FEAT_WET + FEAT_DRY
+# the nine biggest shifts, computed from the data
+FEATURED = stats.delta.abs().sort_values(ascending=False).head(9).index.tolist()
 ORDER = sorted(LONG, key=LONG.get)
 n_wet = int((stats.delta > 0).sum())
 n_dry = int((stats.delta < 0).sum())
@@ -394,7 +393,7 @@ art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb halo" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb halo" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
 art.append(f'<text x="{CX}" y="{RT - 26:.0f}" class="linelab" text-anchor="middle">THE OLD BALANCE</text>')
-art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: average rain of 1979–2000</text>')
+art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: average rain of 1979–2019</text>')
 
 # --- centre compass: reading direction --------------------------------------------
 art.append(f'<circle cx="{CX}" cy="{CY}" r="2.6" fill="{SUB}"/>')
@@ -534,7 +533,7 @@ def below():
     p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain;</text>')
-    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2000</text>')
+    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2019</text>')
     x = 330
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 - 2.2}" r="1.5" fill="#ffffff" opacity="0.4"/>')
@@ -605,7 +604,7 @@ html = f"""<!DOCTYPE html>
   <!-- header -->
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
-  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the rain they knew in 1979–2000, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
+  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the four decades to 2019, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
   <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories in west → east order around the ring · the ocean lies inside the ring, the sky outside</text>
 

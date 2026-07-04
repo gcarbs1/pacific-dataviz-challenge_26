@@ -2,12 +2,12 @@
 
 Static A4 art poster for the Pacific Dataviz Challenge 2026.
 
-**Narrative.** The climate crisis is not only heating the Pacific — it is
+**Narrative.** The climate crisis is not only heating the Pacific, it is
 redistributing its water. Comparing each territory's average annual rainfall
-anomaly in 1979–2000 with 2020–2025, the far western Pacific (Micronesia,
-Solomon Islands, Vanuatu, Palau) is getting markedly wetter, while a corridor
-of atoll nations along the equator and the dateline (Nauru, Tuvalu, Kiribati,
-Tokelau) and New Caledonia are drying out.
+anomaly in the 2020s (2020–2025) with the four decades before (1979–2019),
+the far western Pacific (Micronesia, Vanuatu, Solomon Islands, Palau) is
+getting markedly wetter, while a corridor of atoll nations along the equator
+and the dateline (Nauru, Kiribati, Tuvalu, Tokelau) is drying out.
 
 ## The artwork — the rain compass
 
@@ -15,7 +15,7 @@ One circular artwork fills the page; narration lives in the sky corners and a
 single quiet legend line sits at the foot — nothing is written over the art.
 
 1. **The ring** is each territory's old balance — its average rain of
-   1979–2000. The ocean lies inside the ring, the sky outside. The 22
+   1979–2019. The ocean lies inside the ring, the sky outside. The 22
    territories sit around it in west→east order (west at the top, clockwise),
    one equal sector each, every one wearing its simplified flag.
 2. **The ocean** — engraved water: dozens of hairline contour rings over a
