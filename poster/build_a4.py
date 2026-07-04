@@ -272,8 +272,8 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 # shifts carry their 47-year barcode stem. A radial mm ruler sits in the
 # 12-o'clock gap.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 662.0
-RB = 215.0                      # the old-balance ring
+CX, CY = 420.0, 648.0
+RB = 228.0                      # the old-balance ring
 K = 4.2                         # px per mm of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
 A0 = -90.0 + GAP / 2.0
@@ -292,7 +292,7 @@ def pt(r, a):
     return CX + r * math.cos(a), CY + r * math.sin(a)
 
 def rsize(d):
-    return 7.0 + abs(d) * 0.48
+    return 7.3 + abs(d) * 0.50
 
 rng = random.Random(20)
 defs, art = [], []
@@ -315,6 +315,9 @@ defs.append('''<radialGradient id="hiW" cx="0.36" cy="0.60" r="0.34">
 <radialGradient id="sun2" cx="0.4" cy="0.38" r="0.75">
   <stop offset="0" stop-color="#ffe07f"/>
   <stop offset="1" stop-color="#efba3e"/></radialGradient>''')
+
+# --- the horizon: one line ties the page together --------------------------------
+art.append(f'<line x1="22" y1="{CY:.0f}" x2="{W - 22}" y2="{CY:.0f}" stroke="{INK}" stroke-opacity="0.12" stroke-width="0.8"/>')
 
 # --- the ocean: engraved water, line by line ------------------------------------
 defs.append(f'''<radialGradient id="sea" cx="0.5" cy="0.46" r="0.62">
@@ -391,7 +394,7 @@ art.append(f'<text x="{wx:.0f}" y="{wy + 3:.0f}" class="rul halo" fill="{SUB}" t
 art.append(f'<text x="{ex:.0f}" y="{ey + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">E</text>')
 
 # --- the 22 territories, radially -------------------------------------------------
-NUDGE = {"NC": -14, "NR": -12}   # hand-tuned extra radial offset for a label, in px
+NUDGE = {"NC": -18, "NR": -16, "TK": -12}   # hand-tuned extra radial offset for a label, in px
 
 for iso in ORDER:
     d = float(stats.loc[iso, "delta"])
@@ -473,9 +476,10 @@ def corners():
     p.append(f'<text x="44" y="330" class="anno" fill="{WET_D}">the west fills up</text>')
     p.append(f'<text x="44" y="364" class="bignum" fill="{WET_D}">{n_wet}</text>')
     p.append(f'<text x="44" y="380" class="biglab">TERRITORIES NOW WETTER</text>')
-    p.append(f'<text x="44" y="404" class="call" fill="{INK}">Micronesia’s three wettest years on</text>')
-    p.append(f'<text x="44" y="418" class="call" fill="{INK}">record have all come since 2019; the</text>')
-    p.append(f'<text x="44" y="432" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}).</text>')
+    # micronesia note — bottom-left, balancing the sun
+    p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years on</text>')
+    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">record have all come since 2019; the</text>')
+    p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}).</text>')
     # centre / drier — top-right, under the sun
     p.append(f'<text x="{W - 40}" y="366" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
     p.append(f'<text x="{W - 40}" y="400" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
