@@ -28,9 +28,9 @@ single quiet legend line sits at the foot — nothing is written over the art.
    evaporate outward, faded behind a warm solid outline, where rain
    decreased. Distance from the ring + drop size = the shift in mm,
    measured against the radial ruler in the 12-o'clock gap.
-4. **Water-streaks** — the nine largest shifts leave a tapered trail from
-   the old balance to today's drop, fading back toward the ring: blue
-   streaks run down into the ocean, warm ones rise into the sky.
+4. **Threads** — every drop hangs from its berth on the ring by a fine
+   thread: solid for the nine largest shifts, dotted for the rest; blue
+   threads reach down into the ocean, warm ones rise into the sky.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
    format for all 22 territories — country name, shift beneath it — placed
    past the drop so no text is ever written over the artwork. A small

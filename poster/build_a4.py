@@ -313,12 +313,6 @@ defs.append('''<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
 <radialGradient id="spec" cx="0.5" cy="0.5" r="0.5">
   <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
   <stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>
-<linearGradient id="trW" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#1b87b4" stop-opacity="0"/>
-  <stop offset="1" stop-color="#1b87b4" stop-opacity="0.45"/></linearGradient>
-<linearGradient id="trU" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0" stop-color="#c2762e" stop-opacity="0.45"/>
-  <stop offset="1" stop-color="#c2762e" stop-opacity="0"/></linearGradient>
 <radialGradient id="sun2" cx="0.4" cy="0.38" r="0.75">
   <stop offset="0" stop-color="#ffe07f"/>
   <stop offset="1" stop-color="#efba3e"/></radialGradient>
@@ -442,17 +436,11 @@ for iso in ORDER:
     cy_l = -RB + (stem + 2.05 * r) * sgn
     tip_l = -RB + stem * sgn
     g = [f'<g transform="translate({CX},{CY}) rotate({deg:.2f})">']
+    c = WET if wet else DRY
     if feat:
-        # water-streak: the drop's tapered trail from the old balance to
-        # where it sits today, fading back toward the ring
-        w_ = max(2.6, 0.24 * r)
-        y0_ = -RB + 3 * sgn
-        mid = (y0_ + tip_l) / 2
-        g.append(f'<path d="M {-w_:.1f} {y0_:.1f} Q {-0.25 * w_:.1f} {mid:.1f} 0 {tip_l:.1f} '
-                 f'Q {0.25 * w_:.1f} {mid:.1f} {w_:.1f} {y0_:.1f} Z" fill="url(#{"trW" if wet else "trU"})"/>')
-        g.append(f'<line x1="0" y1="{y0_:.1f}" x2="0" y2="{tip_l:.1f}" stroke="{WET_D if wet else DRY_D}" stroke-opacity="0.18" stroke-width="0.7"/>')
+        # the nine biggest shifts hang from a fine solid thread
+        g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.55" stroke-width="1"/>')
     else:
-        c = WET if wet else DRY
         g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
     dp = drop_path(0, cy_l, r, up=not wet)
     defs.append(f'<clipPath id="c{iso}"><path d="{dp}"/></clipPath>')
@@ -557,9 +545,10 @@ def below():
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">evaporating back into the sky</text>')
     x = 570
-    p.append(f'<path d="M {x - 3.2} {y0 - 9} Q {x - 0.8} {y0 - 1} {x} {y0 + 9} Q {x + 0.8} {y0 - 1} {x + 3.2} {y0 - 9} Z" fill="url(#trW)"/>')
-    p.append(f'<text x="{x + 13}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts leave a streak, trailing</text>')
-    p.append(f'<text x="{x + 13}" y="{y0 + 11}" class="tiny" fill="{SUB}">from the old balance down to today’s drop</text>')
+    p.append(f'<line x1="{x}" y1="{y0 - 9}" x2="{x}" y2="{y0 + 9}" stroke="{WET}" stroke-opacity="0.55" stroke-width="1"/>')
+    p.append(f'<line x1="{x + 5}" y1="{y0 - 9}" x2="{x + 5}" y2="{y0 + 9}" stroke="{DRY}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
+    p.append(f'<text x="{x + 16}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts hang from a solid thread;</text>')
+    p.append(f'<text x="{x + 16}" y="{y0 + 11}" class="tiny" fill="{SUB}">the others from a dotted one</text>')
     # data-source footnote
     p.append(f'<text x="{W / 2}" y="{y0 + 38}" class="cap" text-anchor="middle">'
              f'Data: SPC Pacific Data Hub · annual rainfall anomalies (DF_CLIMATE_CHANGE, RAIN_ANOM, mm) · '
