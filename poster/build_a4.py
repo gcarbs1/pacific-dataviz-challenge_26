@@ -390,7 +390,7 @@ art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb halo" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb halo" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
 art.append(f'<text x="{CX}" y="{RT - 26:.0f}" class="linelab" text-anchor="middle">THE OLD BALANCE</text>')
-art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring — average rain of 1979–2000</text>')
+art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: average rain of 1979–2000</text>')
 
 # --- centre compass: reading direction --------------------------------------------
 art.append(f'<circle cx="{CX}" cy="{CY}" r="2.6" fill="{SUB}"/>')
@@ -523,7 +523,7 @@ def corners():
     p.append(f'<text x="{W - 40}" y="416" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
     p.append(f'<text x="{W - 40}" y="440" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned</text>')
     p.append(f'<text x="{W - 40}" y="454" class="call" fill="{INK}" text-anchor="end">manic: <tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019,</text>')
-    p.append(f'<text x="{W - 40}" y="468" class="call" fill="{INK}" text-anchor="end">its wettest year — then</text>')
+    p.append(f'<text x="{W - 40}" y="468" class="call" fill="{INK}" text-anchor="end">its wettest year, then</text>')
     p.append(f'<text x="{W - 40}" y="482" class="call" fill="{INK}" text-anchor="end"><tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>')
     return "".join(p)
 
@@ -547,6 +547,10 @@ def below():
         p.append(f'<line x1="{x - hw:.0f}" y1="{y0 - 5 + j * 5}" x2="{x + hw:.0f}" y2="{y0 - 5 + j * 5}" stroke="{c}" stroke-width="1"/>')
     p.append(f'<text x="{x + 13}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts carry a stem: one tick per year,</text>')
     p.append(f'<text x="{x + 13}" y="{y0 + 11}" class="tiny" fill="{SUB}">1979 at the ring → 2025 at the drop; width = anomaly</text>')
+    # data-source footnote
+    p.append(f'<text x="{W / 2}" y="{y0 + 38}" class="cap" text-anchor="middle">'
+             f'Data: SPC Pacific Data Hub · annual rainfall anomalies (DF_CLIMATE_CHANGE, RAIN_ANOM, mm) · '
+             f'22 Pacific Island countries and territories, 1979–2025</text>')
     return "".join(p)
 
 # ================================================================= html ==========
@@ -596,9 +600,8 @@ html = f"""<!DOCTYPE html>
   {"".join(f'<path d="M {xx} 1174 L {xx + 7} 1182 L {xx + 14} 1174" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for xx in range(14, W - 18, 22))}
 
   <!-- header -->
-  <text x="{W / 2}" y="48" class="kick" text-anchor="middle">PACIFIC DATAVIZ CHALLENGE 2026 · RAINFALL ANOMALIES · SPC PACIFIC DATA HUB · 1979→2025</text>
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
-  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat — it redistributes the water.</text>
+  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the rain they knew in 1979–2000, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
   <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories in west → east order around the ring · the ocean lies inside the ring, the sky outside</text>
