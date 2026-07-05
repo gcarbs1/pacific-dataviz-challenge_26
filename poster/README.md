@@ -16,8 +16,10 @@ single quiet legend line sits at the foot — nothing is written over the art.
 
 1. **The ring** is each territory's old balance — its average rain of
    1979–2019. The ocean lies inside the ring, the sky outside. The 22
-   territories sit around it **ordered by the shift itself**, one equal
-   sector each, every one wearing its simplified flag: the driest territory
+   territories sit around it **ordered by the shift itself**, each berth
+   sized to give its drop room to breathe (the deep drops near the centre
+   get wider sectors), every one wearing its simplified flag: the driest
+   territory
    (Nauru) starts clockwise of the 12-o'clock gap, directly beneath the
    page's sun; the shift rises through zero at the bottom of the wheel; the
    wettest (Vanuatu) closes the circle on the far side of the gap. Read

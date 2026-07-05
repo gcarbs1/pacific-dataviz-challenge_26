@@ -263,7 +263,7 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 
 # ================================================================ poster =====
 # Circular composition — the "rain wheel". The 22 territories sit around a
-# ring sorted by their shift, one equal sector each: the driest territory
+# ring sorted by their shift, berths sized to breathe: the driest territory
 # starts clockwise of the 12-o'clock gap (under the page's sun), the shift
 # rises through zero at the bottom and the wettest closes the circle on the
 # other side of the gap — so the wheel reads as one revolution of the water
@@ -280,21 +280,48 @@ A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
 
 # a little organic breathing room: hand-tuned angular offsets, in degrees
-# (tuned for the sorted-by-shift order — small alternating nudges so no two
-# neighbours drift towards each other)
-AJIT = {"NR": 1.6, "KI": -1.3, "TV": 1.1, "TK": -1.0, "PN": 1.3, "NC": -1.2,
-        "PF": 0.9, "CK": -1.0, "MP": 0.8, "GU": -1.1, "AS": 1.0, "PG": -0.9,
-        "WS": 1.2, "MH": -1.0, "FJ": 0.8, "WF": -1.2, "TO": 1.0, "NU": -0.8,
-        "PW": 1.1, "SB": -1.3, "FM": 0.9, "VU": -1.4}
-
-def ang(iso):
-    return math.radians(A0 + SPAN * ORDER.index(iso) / (len(ORDER) - 1) + AJIT.get(iso, 0.0))
-
-def pt(r, a):
-    return CX + r * math.cos(a), CY + r * math.sin(a)
+# (small alternating nudges so the wheel breathes instead of ticking)
+AJIT = {"NR": 0.8, "KI": -0.6, "TV": 0.5, "TK": -0.5, "PN": 0.6, "NC": -0.6,
+        "PF": 0.5, "CK": -0.5, "MP": 0.4, "GU": -0.5, "AS": 0.5, "PG": -0.4,
+        "WS": 0.6, "MH": -0.5, "FJ": 0.4, "WF": -0.6, "TO": 0.5, "NU": -0.4,
+        "PW": 0.5, "SB": -0.6, "FM": 0.4, "VU": -0.6}
 
 def rsize(d):
     return 7.3 + abs(d) * 0.50
+
+# berth widths: not equal sectors — each territory takes an angular footprint
+# proportional to how much room its drop actually needs at the radius where
+# it lives (deep wet drops sit near the centre, where a degree is worth
+# fewer pixels), and the leftover slack is shared out evenly. The two
+# extremes stay pinned to the edges of the 12-o'clock gap.
+def footprint(iso):
+    d = float(stats.loc[iso, "delta"])
+    r = rsize(d)
+    stem = abs(d) * K
+    if d >= 0:
+        rc = RB - stem - 2.05 * r           # drop centre, down in the ocean
+        lab = 25.0 / (RB + 22.0)            # two-line label just off the ring
+    else:
+        rc = RB + stem + 2.05 * r           # drop centre, up in the sky
+        lab = 25.0 / (RB + stem + 3.05 * r + 30.0)
+    body = 2.0 * math.asin(min(0.95, (r + 4.0) / max(rc, 40.0)))
+    return math.degrees(max(body, lab))
+
+FOOT = [footprint(iso) for iso in ORDER]
+_pairs = [(a + b) / 2.0 for a, b in zip(FOOT, FOOT[1:])]
+_slack = (SPAN - sum(_pairs)) / len(_pairs)
+assert _slack > 0, "wheel is over-full; loosen the footprint padding"
+BERTH = {ORDER[0]: A0}
+_acc = A0
+for iso_, gap_ in zip(ORDER[1:], _pairs):
+    _acc += gap_ + _slack
+    BERTH[iso_] = _acc
+
+def ang(iso):
+    return math.radians(BERTH[iso] + AJIT.get(iso, 0.0))
+
+def pt(r, a):
+    return CX + r * math.cos(a), CY + r * math.sin(a)
 
 rng = random.Random(20)
 defs, art = [], []
