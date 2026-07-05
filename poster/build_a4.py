@@ -2,8 +2,9 @@
 """
 WHERE THE RAIN WENT — A4 art poster (light background, flag drops).
 One page, one artwork, nothing written over it:
-  1. flag-drops: x = geography (west->east), distance from the "old balance"
-     line + drop size = shift between 1979-2000 and 2020-2025 averages
+  1. flag-drops around the ring, ordered by the shift itself (driest ->
+     wettest, clockwise); distance from the "old balance" ring + drop size =
+     shift between 1979-2019 and 2020-2025 averages
   2. each featured stem is a year-by-year barcode (47 annual anomalies)
   3. legend, computed record notes and credits arranged below the art
 
@@ -39,16 +40,13 @@ NAMES = {
     "PN": "Pitcairn", "TK": "Tokelau", "NC": "New Caledonia", "KI": "Kiribati",
     "TV": "Tuvalu", "NR": "Nauru",
 }
-LONG = {
-    "PW": 134.6, "GU": 144.0, "PG": 144.5, "MP": 145.7, "FM": 150.5,
-    "SB": 159.8, "NC": 165.3, "NR": 166.9, "VU": 167.3, "MH": 169.2,
-    "KI": 174.5, "FJ": 178.4, "TV": 179.2, "WF": 183.6, "TO": 184.8,
-    "WS": 187.9, "TK": 188.2, "NU": 190.1, "AS": 190.6, "CK": 200.2,
-    "PF": 211.5, "PN": 229.9,
-}
 # the nine biggest shifts, computed from the data
 FEATURED = stats.delta.abs().sort_values(ascending=False).head(9).index.tolist()
-ORDER = sorted(LONG, key=LONG.get)
+# reading order = the story: sorted by the shift itself, driest first. The
+# circle becomes the water cycle — clockwise from the 12-o'clock ruler the
+# evaporating territories descend towards zero at 6 o'clock, then the rain
+# deepens again up the other side, so the two extremes flank the ruler.
+ORDER = stats.delta.sort_values().index.tolist()
 n_wet = int((stats.delta > 0).sum())
 n_dry = int((stats.delta < 0).sum())
 
@@ -264,14 +262,17 @@ CAP.update({"GU": "#1F3F7A", "PG": "#CE1126", "MP": "#0071BC", "MH": "#003893",
 CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 
 # ================================================================ poster =====
-# Circular composition — the "rain compass". The 22 territories sit around a
-# ring in west->east order, one equal sector each. Inside the ring is the
-# ocean; outside is the sky. Where rain increased, a flag-drop falls inward;
-# where it decreased, a faded flag-drop evaporates outward. The nine largest
-# shifts carry their 47-year barcode stem. A radial mm ruler sits in the
-# 12-o'clock gap.
+# Circular composition — the "rain wheel". The 22 territories sit around a
+# ring sorted by their shift, one equal sector each: the driest territory
+# starts clockwise of the 12-o'clock gap (under the page's sun), the shift
+# rises through zero at the bottom and the wettest closes the circle on the
+# other side of the gap — so the wheel reads as one revolution of the water
+# cycle, and both record-holders flank the radial mm ruler in the gap.
+# Inside the ring is the ocean; outside is the sky. Where rain increased, a
+# flag-drop falls inward; where it decreased, a faded flag-drop evaporates
+# outward.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 648.0
+CX, CY = 420.0, 672.0
 RB = 228.0                      # the old-balance ring
 K = 4.2                         # px per mm of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
@@ -279,10 +280,12 @@ A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
 
 # a little organic breathing room: hand-tuned angular offsets, in degrees
-AJIT = {"GU": 1.2, "PG": -1.6, "MP": 0.8, "FM": -4.5, "SB": 4.5, "NC": -2.4,
-        "NR": 2.2, "VU": -1.2, "MH": 1.4, "KI": 1.5, "FJ": -1.0, "TV": -1.5,
-        "WF": 1.0, "TO": -0.9, "WS": 1.2, "TK": -1.0, "NU": 0.8, "AS": -1.3,
-        "CK": 1.0, "PF": -0.9, "PN": 1.3}
+# (tuned for the sorted-by-shift order — small alternating nudges so no two
+# neighbours drift towards each other)
+AJIT = {"NR": 1.6, "KI": -1.3, "TV": 1.1, "TK": -1.0, "PN": 1.3, "NC": -1.2,
+        "PF": 0.9, "CK": -1.0, "MP": 0.8, "GU": -1.1, "AS": 1.0, "PG": -0.9,
+        "WS": 1.2, "MH": -1.0, "FJ": 0.8, "WF": -1.2, "TO": 1.0, "NU": -0.8,
+        "PW": 1.1, "SB": -1.3, "FM": 0.9, "VU": -1.4}
 
 def ang(iso):
     return math.radians(A0 + SPAN * ORDER.index(iso) / (len(ORDER) - 1) + AJIT.get(iso, 0.0))
@@ -403,20 +406,24 @@ for i in range(8):
     art.append(f'<line x1="{CX + 6 * math.cos(a):.1f}" y1="{CY + 6 * math.sin(a):.1f}" '
                f'x2="{CX + rr * math.cos(a):.1f}" y2="{CY + rr * math.sin(a):.1f}" '
                f'stroke="{SUB}" stroke-opacity="0.7" stroke-width="1"/>')
-ca0, ca1 = math.radians(-64), math.radians(-6)
+# reading direction: one revolution of the water cycle. A near-full arrow
+# runs clockwise from the evaporating side to the raining side, a tiny
+# rising drop at its tail and a falling drop at its head.
+ca0, ca1 = math.radians(-56), math.radians(232)
 cx0, cy0 = pt(30, ca0)
 cx1, cy1 = pt(30, ca1)
-art.append(f'<path d="M {cx0:.1f} {cy0:.1f} A 30 30 0 0 1 {cx1:.1f} {cy1:.1f}" '
+art.append(f'<path d="M {cx0:.1f} {cy0:.1f} A 30 30 0 1 1 {cx1:.1f} {cy1:.1f}" '
            f'fill="none" stroke="{SUB}" stroke-opacity="0.7" stroke-width="1"/>')
 tx, ty = math.cos(ca1 + math.pi / 2), math.sin(ca1 + math.pi / 2)
 art.append(f'<polygon points="{cx1 + 3.2 * math.cos(ca1):.1f},{cy1 + 3.2 * math.sin(ca1):.1f} '
            f'{cx1 - 3.2 * math.cos(ca1) + 5.5 * tx:.1f},{cy1 - 3.2 * math.sin(ca1) + 5.5 * ty:.1f} '
            f'{cx1 - 3.2 * math.cos(ca1) - 0.5 * tx:.1f},{cy1 - 3.2 * math.sin(ca1) - 0.5 * ty:.1f}" '
            f'fill="{SUB}" fill-opacity="0.8"/>')
-wx, wy = pt(41, math.radians(-72))
-ex, ey = pt(41, math.radians(2))
-art.append(f'<text x="{wx:.0f}" y="{wy + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">W</text>')
-art.append(f'<text x="{ex:.0f}" y="{ey + 3:.0f}" class="rul halo" fill="{SUB}" text-anchor="middle">E</text>')
+dx0, dy0 = pt(41, math.radians(-64))
+dx1, dy1 = pt(41, math.radians(240))
+art.append(f'<path d="{drop_path(dx0, dy0 + 2.6, 2.6, up=True)}" fill="{PAPER}" '
+           f'stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
+art.append(f'<path d="{drop_path(dx1, dy1 + 2.6, 2.6)}" fill="{WET}"/>')
 
 # --- the 22 territories, radially -------------------------------------------------
 
@@ -518,10 +525,10 @@ def corners():
     p.append(f'<text x="{W - 40}" y="366" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
     p.append(f'<text x="{W - 40}" y="400" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
     p.append(f'<text x="{W - 40}" y="416" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
-    p.append(f'<text x="{W - 40}" y="440" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned</text>')
-    p.append(f'<text x="{W - 40}" y="454" class="call" fill="{INK}" text-anchor="end">manic: <tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019,</text>')
-    p.append(f'<text x="{W - 40}" y="468" class="call" fill="{INK}" text-anchor="end">its wettest year, then</text>')
-    p.append(f'<text x="{W - 40}" y="482" class="call" fill="{INK}" text-anchor="end"><tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>')
+    # nauru note — bottom-right, mirroring the micronesia note
+    p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
+    p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019, its wettest</text>')
+    p.append(f'<text x="{W - 44}" y="1020" class="call" fill="{INK}" text-anchor="end">year, then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>')
     return "".join(p)
 
 # --- one quiet legend line at the foot ---------------------------------------------
@@ -606,7 +613,7 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the four decades to 2019, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories in west → east order around the ring · the ocean lies inside the ring, the sky outside</text>
+  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift — driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
 
   <!-- sky corners -->
   {corners()}

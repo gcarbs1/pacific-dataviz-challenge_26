@@ -9,15 +9,24 @@ the far western Pacific (Micronesia, Vanuatu, Solomon Islands, Palau) is
 getting markedly wetter, while a corridor of atoll nations along the equator
 and the dateline (Nauru, Kiribati, Tuvalu, Tokelau) is drying out.
 
-## The artwork — the rain compass
+## The artwork — the rain wheel
 
 One circular artwork fills the page; narration lives in the sky corners and a
 single quiet legend line sits at the foot — nothing is written over the art.
 
 1. **The ring** is each territory's old balance — its average rain of
    1979–2019. The ocean lies inside the ring, the sky outside. The 22
-   territories sit around it in west→east order (west at the top, clockwise),
-   one equal sector each, every one wearing its simplified flag.
+   territories sit around it **ordered by the shift itself**, one equal
+   sector each, every one wearing its simplified flag: the driest territory
+   (Nauru) starts clockwise of the 12-o'clock gap, directly beneath the
+   page's sun; the shift rises through zero at the bottom of the wheel; the
+   wettest (Vanuatu) closes the circle on the far side of the gap. Read
+   clockwise, the wheel is one revolution of the water cycle — evaporation
+   under the sun, rain returning on the other side — and the two
+   record-holders flank the ruler in the gap. The exact 11 : 11 split
+   (eleven drier, eleven wetter) divides the wheel into mirrored halves,
+   and the geography tells itself: the drying end is the central atoll
+   corridor, the wetting end the far west.
 2. **The ocean** — engraved water: dozens of hairline contour rings over a
    soft depth gradient, like the line-work of an etching; each territory sits
    at a gently hand-jittered angle so the compass breathes instead of ticking
@@ -33,8 +42,10 @@ single quiet legend line sits at the foot — nothing is written over the art.
    threads reach down into the ocean, warm ones rise into the sky.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
    format for all 22 territories — country name, shift beneath it — placed
-   past the drop so no text is ever written over the artwork. A small
-   compass with the W→E arrow sits at the centre. Record notes in the
+   past the drop so no text is ever written over the artwork. At the centre,
+   a small rose and a near-full circular arrow give the reading direction —
+   from a tiny rising drop (the evaporating side) clockwise round to a
+   falling one (the raining side). Record notes in the
    corners are computed from the data at build time (the build fails if a
    claim stops being true).
 
