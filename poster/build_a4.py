@@ -488,6 +488,8 @@ defs.append('''<radialGradient id="glowSea" cx="0.5" cy="0.5" r="0.5">
 defs.append('<filter id="blc" x="-60%" y="-60%" width="220%" height="220%">'
             '<feGaussianBlur stdDeviation="3.2"/></filter>')
 rng2 = random.Random(7)
+# the whole emblem is scaled to match the sun's pictorial size across the page
+art.append('<g transform="translate(106 314) scale(0.7) translate(-106 -314)">')
 art.append('<circle cx="106" cy="312" r="62" fill="url(#glowSea)"/>')
 for cx_, cy_, tone_, op_, blobs_ in (
         (64, 288, "#cfd9de", 0.65, ((0, 0, 20, 12), (-15, 3, 14, 9), (14, 2, 15, 9))),
@@ -501,9 +503,10 @@ for i in range(13):
     rx = 56 + i * 7.2 + rng2.uniform(-1.6, 1.6)
     ry = 326 + (i % 3) * 4.5 + rng2.uniform(0, 3)
     ln = 9 + 7 * rng2.random()
-    op = 0.14 + 0.18 * rng2.random()
+    op = 0.11 + 0.14 * rng2.random()
     art.append(f'<line x1="{rx:.1f}" y1="{ry:.1f}" x2="{rx - 2.4:.1f}" y2="{ry + ln:.1f}" '
                f'stroke="{WET}" stroke-opacity="{op:.2f}" stroke-width="0.8" stroke-linecap="round"/>')
+art.append('</g>')
 
 # --- the 22 territories, radially -------------------------------------------------
 
@@ -596,17 +599,17 @@ def corners():
     # the number sits vertically centred between the two stacked words,
     # the block itself centred on the sky band's lower golden division
     p.append(f'<text x="44" y="387" class="bignum" fill="{WET_D}">{n_wet}</text>')
-    p.append(f'<text x="143" y="372" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
-    p.append(f'<text x="143" y="388" class="biglab" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
+    p.append(f'<text x="139" y="372" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
+    p.append(f'<text x="139" y="388" class="terr" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
     p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
     p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
     p.append(f'<text x="{W - 44}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
-    p.append(f'<text x="{W - 44 - 102}" y="387" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
+    p.append(f'<text x="{W - 44 - 96}" y="387" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
     p.append(f'<text x="{W - 44 - 45}" y="372" class="terr" style="fill:{DRY_D}" text-anchor="middle">TERRITORIES</text>')
-    p.append(f'<text x="{W - 44 - 45}" y="388" class="biglab" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
+    p.append(f'<text x="{W - 44 - 45}" y="388" class="terr" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
     p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')
@@ -708,7 +711,7 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific. Between the record’s first twenty years</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">and its last, the sky itself has tilted, <tspan class="standb">pouring ever more rain on the west and south</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls run dry</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
+  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest. The ocean lies inside the ring, the sky outside.</text>
 
   <!-- sky corners -->
   {corners()}
