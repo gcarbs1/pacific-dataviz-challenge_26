@@ -570,16 +570,19 @@ def corners():
     # west / wetter — top-left, on the same baselines as the block under
     # the sun so the two sky columns mirror each other
     p.append(f'<text x="44" y="248" class="anno halo" fill="{WET_D}">where the rain moved in</text>')
-    p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet} <tspan class="terr">TERRITORIES</tspan></text>')
-    p.append(f'<text x="44" y="406" class="biglab">NOW WETTER</text>')
+    # the number sits vertically centred between the two stacked words
+    p.append(f'<text x="44" y="401" class="bignum" fill="{WET_D}">{n_wet}</text>')
+    p.append(f'<text x="143" y="386" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
+    p.append(f'<text x="143" y="402" class="biglab" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
     p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
     p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
     p.append(f'<text x="{W - 40}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
-    p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry} <tspan class="terr">TERRITORIES</tspan></text>')
-    p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">NOW DRIER</text>')
+    p.append(f'<text x="{W - 40 - 102}" y="401" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
+    p.append(f'<text x="{W - 40 - 45}" y="386" class="terr" style="fill:{DRY_D}" text-anchor="middle">TERRITORIES</text>')
+    p.append(f'<text x="{W - 40 - 45}" y="402" class="biglab" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
     p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')
@@ -631,7 +634,7 @@ html = f"""<!DOCTYPE html>
   .stand  {{ font:italic 400 14.5px 'Fraunces',Georgia,serif; fill:{SUB}; }}
   .standb {{ font-style:normal; font-weight:600; fill:{INK}; }}
   .cap    {{ font:400 10px 'Outfit',sans-serif; fill:{FAINT}; }}
-  .bignum {{ font:700 27px 'Fraunces',Georgia,serif; }}
+  .bignum {{ font:700 34px 'Fraunces',Georgia,serif; }}
   .terr   {{ font:600 11px 'Outfit',sans-serif; letter-spacing:0.14em; }}
   .biglab {{ font:600 8.5px 'Outfit',sans-serif; letter-spacing:0.2em; fill:{SUB}; }}
   .anno   {{ font:italic 500 15.5px 'Fraunces',Georgia,serif; opacity:0.85; }}
