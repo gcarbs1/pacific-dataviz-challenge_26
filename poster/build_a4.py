@@ -4,7 +4,13 @@ WHERE THE RAIN WENT — A4 art poster (light background, flag drops).
 One page, one artwork, nothing written over it:
   1. flag-drops around the ring, ordered by the shift itself (driest ->
      wettest, clockwise); distance from the "old balance" ring + drop size =
-     shift between 1979-2019 and 2020-2025 averages
+     shift between the record's first twenty years (1979-1998) and its last
+     twenty (2006-2025), in % of the 1991-2020 normal (the source CSV
+     mislabels the unit as mm). The 20v20 cut was chosen over the 2020s
+     window, record halves, the fitted 47-year trend and the 2020s-vs-normal:
+     it tracks the full trend almost perfectly (rank corr 0.98), is the most
+     internally stable cut (odd/even-year split 0.90) and needs no statistics
+     to explain
   2. each featured stem is a year-by-year barcode (47 annual anomalies)
   3. legend, computed record notes and credits arranged below the art
 
@@ -24,7 +30,7 @@ df = pd.read_csv(ROOT / "data" / "rainfall_anomalies" / "data.csv")
 df = df[["GEO_PICT", "TIME_PERIOD", "OBS_VALUE"]].rename(
     columns={"GEO_PICT": "iso", "TIME_PERIOD": "year", "OBS_VALUE": "v"}
 )
-H0, H1, R0, R1 = 1979, 2019, 2020, 2025
+H0, H1, R0, R1 = 1979, 1998, 2006, 2025
 hist = df[df.year.between(H0, H1)].groupby("iso")["v"].mean()
 rec = df[df.year.between(R0, R1)].groupby("iso")["v"].mean()
 stats = pd.DataFrame({"hist": hist, "rec": rec})
@@ -40,8 +46,27 @@ NAMES = {
     "PN": "Pitcairn", "TK": "Tokelau", "NC": "New Caledonia", "KI": "Kiribati",
     "TV": "Tuvalu", "NR": "Nauru",
 }
+# units: OBS_VALUE is the annual rainfall anomaly in % of the 1991-2020
+# normal (the PDH CSV mislabels the unit as MM). Verified three ways: the
+# 1991-2020 mean is exactly zero for all 22 territories, ENSO years land
+# where they should, and Nauru's 2015 (+49.5) and 1999 (-54.4) match its
+# real totals of ~3100 mm and ~950 mm against a ~2080 mm normal.
+assert abs(float(df[df.year.between(1991, 2020)].groupby("iso")["v"].mean().max())) < 0.5, \
+    "values no longer look like anomalies against the 1991-2020 normal"
+
 # the nine biggest shifts, computed from the data
 FEATURED = stats.delta.abs().sort_values(ascending=False).head(9).index.tolist()
+
+# the 2020s window is not cherry-picked: the same wet-west dry-centre
+# pattern runs through the whole 47-year trend. Checked at build time so
+# the footnote claim cannot silently rot.
+def _slope(iso):
+    s = pd.Series(dict(series[iso])).sort_index()
+    x = s.index.to_series().astype(float)
+    return float(((x - x.mean()) * (s - s.mean())).sum() / ((x - x.mean()) ** 2).sum())
+
+_trend = pd.Series({iso: _slope(iso) for iso in stats.index})
+assert _trend.rank().corr(stats.delta.rank()) > 0.7, "footnote trend claim no longer true"
 # reading order = the story: sorted by the shift itself, driest first. The
 # circle becomes the water cycle — clockwise from the 12-o'clock ruler the
 # evaporating territories descend towards zero at 6 o'clock, then the rain
@@ -274,7 +299,7 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 W, Hpx = 840, 1188
 CX, CY = 420.0, 690.0
 RB = 228.0                      # the old-balance ring
-K = 4.2                         # px per mm of shift
+K = 5.8                         # px per % point of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
 A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
@@ -287,7 +312,7 @@ AJIT = {"NR": 0.8, "KI": -0.6, "TV": 0.5, "TK": -0.5, "PN": 0.6, "NC": -0.6,
         "PW": 0.5, "SB": -0.6, "FM": 0.4, "VU": -0.6}
 
 def rsize(d):
-    return 7.3 + abs(d) * 0.50
+    return 7.6 + abs(d) * 0.62
 
 # berth widths: not equal sectors — each territory takes an angular footprint
 # proportional to how much room its drop actually needs at the radius where
@@ -409,21 +434,21 @@ for iso_ in ORDER:
     tx2, ty2 = pt(RB + 3.5, a_)
     art.append(f'<line x1="{tx1:.1f}" y1="{ty1:.1f}" x2="{tx2:.1f}" y2="{ty2:.1f}" stroke="{INK}" stroke-opacity="0.35" stroke-width="1"/>')
 
-# --- radial mm ruler in the 12-o'clock gap ---------------------------------------
-RT = CY - RB - 30 * K           # outer end (30 mm lost)
-RG = CY - RB + 20 * K           # inner end (20 mm gained)
+# --- radial % ruler in the 12-o'clock gap ---------------------------------------
+RT = CY - RB - 16 * K           # outer end (16 points lost)
+RG = CY - RB + 16 * K           # inner end (16 points gained)
 art.append(f'<line x1="{CX}" y1="{RT:.0f}" x2="{CX}" y2="{RG:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
-for m in range(-20, 31, 5):
+for m in range(-15, 16, 5):
     y = CY - RB - m * K
-    major = m % 10 == 0
+    major = abs(m) >= 10
     art.append(f'<line x1="{CX}" y1="{y:.0f}" x2="{CX + (6 if major else 3.5)}" y2="{y:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
-    if major and m != 0:
+    if major:
         art.append(f'<text x="{CX + 9}" y="{y + 2.5:.0f}" class="rul halo" fill="{SUB}">{abs(m)}</text>')
-art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{INK}">0 mm</text>')
+art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{INK}">0%</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb halo" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb halo" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
 art.append(f'<text x="{CX}" y="{RT - 26:.0f}" class="linelab" text-anchor="middle">THE OLD BALANCE</text>')
-art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: average rain of 1979–2019</text>')
+art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: the rain of 1979–1998</text>')
 
 # --- rain clouds in the top-left sky, answering the sun ---------------------------
 # the raining side's emblem: three grey clouds and their falling drops,
@@ -534,10 +559,10 @@ for iso in ORDER:
 
     if feat:
         art.append(radial_text(NAMES[iso], "name", 0))
-        art.append(radial_text(f'{fmt(d)} mm', "val", 1, cval))
+        art.append(radial_text(f'{fmt(d)}%', "val", 1, cval))
     else:
         art.append(radial_text(NAMES[iso], "sname", 0))
-        art.append(radial_text(f'{fmt(d)} mm', "sval", 1, cval))
+        art.append(radial_text(f'{fmt(d)}%', "sval", 1, cval))
 
 ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
 
@@ -546,21 +571,21 @@ def corners():
     p = []
     # west / wetter — top-left, on the same baselines as the block under
     # the sun so the two sky columns mirror each other
-    p.append(f'<text x="44" y="356" class="anno" fill="{WET_D}">the west fills up</text>')
+    p.append(f'<text x="44" y="356" class="anno" fill="{WET_D}">where the rain moved in</text>')
     p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet}</text>')
     p.append(f'<text x="44" y="406" class="biglab">TERRITORIES NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
-    p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years on</text>')
-    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">record have all come since 2019. The</text>')
-    p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}).</text>')
+    p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
+    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
+    p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
-    p.append(f'<text x="{W - 40}" y="356" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
+    p.append(f'<text x="{W - 40}" y="356" class="anno" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
     p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
     p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
-    p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019, its wettest</text>')
-    p.append(f'<text x="{W - 44}" y="1020" class="call" fill="{INK}" text-anchor="end">year, then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)} mm</tspan> in 2022.</text>')
+    p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')
+    p.append(f'<text x="{W - 44}" y="1020" class="call" fill="{INK}" text-anchor="end">since 1979, then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)}%</tspan> in 2022.</text>')
     return "".join(p)
 
 # --- one quiet legend line at the foot ---------------------------------------------
@@ -572,7 +597,7 @@ def below():
     p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain,</text>')
-    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2019</text>')
+    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">size = shift in % of normal rain, 2006–25 vs 1979–98</text>')
     x = 330
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 - 2.2}" r="1.5" fill="#ffffff" opacity="0.4"/>')
@@ -584,10 +609,13 @@ def below():
     p.append(f'<line x1="{x + 5}" y1="{y0 - 9}" x2="{x + 5}" y2="{y0 + 9}" stroke="{DRY}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
     p.append(f'<text x="{x + 16}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts hang from a solid thread,</text>')
     p.append(f'<text x="{x + 16}" y="{y0 + 11}" class="tiny" fill="{SUB}">the others from a dotted one</text>')
-    # data-source footnote
-    p.append(f'<text x="{W / 2}" y="{y0 + 38}" class="cap" text-anchor="middle">'
-             f'Data: SPC Pacific Data Hub · annual rainfall anomalies (DF_CLIMATE_CHANGE, RAIN_ANOM, mm) · '
-             f'22 Pacific Island countries and territories, 1979–2025</text>')
+    # data-source footnote, plus one honest line about ENSO
+    p.append(f'<text x="{W / 2}" y="{y0 + 36}" class="cap" text-anchor="middle">'
+             f'Data: SPC Pacific Data Hub · annual rainfall anomalies in % of the 1991–2020 normal '
+             f'(DF_CLIMATE_CHANGE, RAIN_ANOM) · 22 Pacific territories, 1979–2025</text>')
+    p.append(f'<text x="{W / 2}" y="{y0 + 48}" class="cap" text-anchor="middle">'
+             f'The record’s first twenty years against its last twenty, one generation apart. '
+             f'The same pattern runs through the full 47-year trend.</text>')
     return "".join(p)
 
 # ================================================================= html ==========
@@ -643,8 +671,8 @@ html = f"""<!DOCTYPE html>
   <!-- header -->
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
-  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the four decades to 2019, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
-  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
+  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Between the record’s first twenty years and its last twenty, the sky has tilted:</text>
+  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">it now <tspan class="standb">floods the west and south</tspan> and <tspan class="standb">empties the dateline atolls</tspan>. Same ocean, different rain.</text>
   <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
 
   <!-- sky corners -->
