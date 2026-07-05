@@ -415,8 +415,8 @@ for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)
                f'fill="none" stroke="#ffffff" stroke-opacity="{o_}" stroke-width="{w_}" '
                f'stroke-linecap="round" filter="url(#bl2)"/>')
 
-# sun in the top-right sky
-sx, sy = 758, 288
+# sun in the top-right sky, sitting beneath its corner headline
+sx, sy = 758, 314
 art.append(f'<circle cx="{sx}" cy="{sy}" r="100" fill="url(#glow)" opacity="0.4"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="58" fill="url(#glow)"/>')
 art.append(f'<circle cx="{sx}" cy="{sy}" r="23" fill="url(#sun2)"/>')
@@ -465,18 +465,18 @@ defs.append('''<radialGradient id="glowSea" cx="0.5" cy="0.5" r="0.5">
 defs.append('<filter id="blc" x="-60%" y="-60%" width="220%" height="220%">'
             '<feGaussianBlur stdDeviation="3.2"/></filter>')
 rng2 = random.Random(7)
-art.append('<circle cx="106" cy="286" r="62" fill="url(#glowSea)"/>')
+art.append('<circle cx="106" cy="312" r="62" fill="url(#glowSea)"/>')
 for cx_, cy_, tone_, op_, blobs_ in (
-        (64, 262, "#cfd9de", 0.65, ((0, 0, 20, 12), (-15, 3, 14, 9), (14, 2, 15, 9))),
-        (148, 252, "#d3dce1", 0.60, ((0, 0, 22, 12), (-16, 3, 15, 9), (15, 2, 16, 10))),
-        (102, 288, "#bfccd4", 0.85, ((0, 0, 32, 16), (-25, 4, 20, 12), (25, 3, 22, 13),
+        (64, 288, "#cfd9de", 0.65, ((0, 0, 20, 12), (-15, 3, 14, 9), (14, 2, 15, 9))),
+        (148, 278, "#d3dce1", 0.60, ((0, 0, 22, 12), (-16, 3, 15, 9), (15, 2, 16, 10))),
+        (102, 314, "#bfccd4", 0.85, ((0, 0, 32, 16), (-25, 4, 20, 12), (25, 3, 22, 13),
                                      (7, -13, 21, 12), (-13, -9, 17, 10)))):
     for dx_, dy_, rx_, ry_ in blobs_:
         art.append(f'<ellipse cx="{cx_ + dx_}" cy="{cy_ + dy_}" rx="{rx_}" ry="{ry_}" '
                    f'fill="{tone_}" fill-opacity="{op_}" filter="url(#blc)"/>')
 for i in range(13):
     rx = 56 + i * 7.2 + rng2.uniform(-1.6, 1.6)
-    ry = 300 + (i % 3) * 4.5 + rng2.uniform(0, 3)
+    ry = 326 + (i % 3) * 4.5 + rng2.uniform(0, 3)
     ln = 9 + 7 * rng2.random()
     op = 0.14 + 0.18 * rng2.random()
     art.append(f'<line x1="{rx:.1f}" y1="{ry:.1f}" x2="{rx - 2.4:.1f}" y2="{ry + ln:.1f}" '
@@ -569,7 +569,7 @@ def corners():
     p = []
     # west / wetter — top-left, on the same baselines as the block under
     # the sun so the two sky columns mirror each other
-    p.append(f'<text x="44" y="356" class="anno" fill="{WET_D}">where the rain moved in</text>')
+    p.append(f'<text x="44" y="248" class="anno halo" fill="{WET_D}">where the rain moved in</text>')
     p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet} <tspan class="terr">TERRITORIES</tspan></text>')
     p.append(f'<text x="44" y="406" class="biglab">NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
@@ -577,7 +577,7 @@ def corners():
     p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
-    p.append(f'<text x="{W - 40}" y="356" class="anno" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
+    p.append(f'<text x="{W - 40}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
     p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry} <tspan class="terr">TERRITORIES</tspan></text>')
     p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
@@ -664,9 +664,9 @@ html = f"""<!DOCTYPE html>
 
   <!-- header -->
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
-  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
-  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Between the record’s first twenty years and its last twenty, the sky has tilted:</text>
-  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">it now <tspan class="standb">floods the west and south</tspan> and <tspan class="standb">empties the dateline atolls</tspan>. Same ocean, different rain.</text>
+  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific. Between the record’s first twenty years</text>
+  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">and its last, the sky itself has tilted, <tspan class="standb">pouring ever more rain on the west and south</tspan></text>
+  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls run dry</tspan>. Same ocean, different rain.</text>
   <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
 
   <!-- sky corners -->
