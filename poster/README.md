@@ -41,11 +41,12 @@ single quiet legend line sits at the foot — nothing is written over the art.
    decreased. Distance from the ring + drop size = the shift in % of a
    normal year's rain, measured against the radial ruler in the
    12-o'clock gap.
-4. **Threads** — every drop hangs from its berth on the ring by a fine
-   thread: solid for the nine largest shifts, dotted for the rest; blue
-   threads reach down into the ocean, warm ones rise into the sky.
+4. **Threads** — every drop hangs from its berth on the ring by the same
+   fine solid thread: blue threads reach down into the ocean, warm ones
+   rise into the sky.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
-   format for all 22 territories — country name, shift beneath it — placed
+   format for all 22 territories — country name, shift beneath it (the
+   three driest and three wettest in bold) — placed
    past the drop so no text is ever written over the artwork. Two emblems
    hold the sky at the same height, one per corner: the sun over the drying
    side, three grey rain clouds over the raining side, each corner's

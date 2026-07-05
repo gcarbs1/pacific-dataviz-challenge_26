@@ -54,8 +54,9 @@ NAMES = {
 assert abs(float(df[df.year.between(1991, 2020)].groupby("iso")["v"].mean().max())) < 0.5, \
     "values no longer look like anomalies against the 1991-2020 normal"
 
-# the nine biggest shifts, computed from the data
-FEATURED = stats.delta.abs().sort_values(ascending=False).head(9).index.tolist()
+# bold labels for the three driest and the three wettest, from the data
+FEATURED = (stats.delta.nsmallest(3).index.tolist()
+            + stats.delta.nlargest(3).index.tolist())
 
 # the 2020s window is not cherry-picked: the same wet-west dry-centre
 # pattern runs through the whole 47-year trend. Checked at build time so
@@ -297,7 +298,7 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 # flag-drop falls inward; where it decreased, a faded flag-drop evaporates
 # outward.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 690.0
+CX, CY = 420.0, 706.0
 RB = 228.0                      # the old-balance ring
 K = 5.8                         # px per % point of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
@@ -496,11 +497,8 @@ for iso in ORDER:
     tip_l = -RB + stem * sgn
     g = [f'<g transform="translate({CX},{CY}) rotate({deg:.2f})">']
     c = WET if wet else DRY
-    if feat:
-        # the nine biggest shifts hang from a fine solid thread
-        g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.55" stroke-width="1"/>')
-    else:
-        g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
+    # every drop hangs from its berth by the same fine solid thread
+    g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.5" stroke-width="1"/>')
     dp = drop_path(0, cy_l, r, up=not wet)
     defs.append(f'<clipPath id="c{iso}"><path d="{dp}"/></clipPath>')
     cap = (CAP if wet else CAP_UP).get(iso, WET)
@@ -572,16 +570,16 @@ def corners():
     # west / wetter — top-left, on the same baselines as the block under
     # the sun so the two sky columns mirror each other
     p.append(f'<text x="44" y="356" class="anno" fill="{WET_D}">where the rain moved in</text>')
-    p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet}</text>')
-    p.append(f'<text x="44" y="406" class="biglab">TERRITORIES NOW WETTER</text>')
+    p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet} <tspan class="terr">TERRITORIES</tspan></text>')
+    p.append(f'<text x="44" y="406" class="biglab">NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
     p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
     p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
     p.append(f'<text x="{W - 40}" y="356" class="anno" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
-    p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
-    p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
+    p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry} <tspan class="terr">TERRITORIES</tspan></text>')
+    p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
     p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')
@@ -593,22 +591,17 @@ def below():
     p = []
     y0 = 1118
     p.append(f'<line x1="60" y1="{y0 - 26}" x2="{W - 60}" y2="{y0 - 26}" stroke="{INK}" stroke-opacity="0.15" stroke-width="0.8"/>')
-    x = 72
+    x = 180
     p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">size = shift in % of normal rain, 2006–25 vs 1979–98</text>')
-    x = 330
+    x = 480
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 - 2.2}" r="1.5" fill="#ffffff" opacity="0.4"/>')
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
     p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">evaporating back into the sky</text>')
-    x = 570
-    p.append(f'<line x1="{x}" y1="{y0 - 9}" x2="{x}" y2="{y0 + 9}" stroke="{WET}" stroke-opacity="0.55" stroke-width="1"/>')
-    p.append(f'<line x1="{x + 5}" y1="{y0 - 9}" x2="{x + 5}" y2="{y0 + 9}" stroke="{DRY}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
-    p.append(f'<text x="{x + 16}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts hang from a solid thread,</text>')
-    p.append(f'<text x="{x + 16}" y="{y0 + 11}" class="tiny" fill="{SUB}">the others from a dotted one</text>')
     # data-source footnote, plus one honest line about ENSO
     p.append(f'<text x="{W / 2}" y="{y0 + 36}" class="cap" text-anchor="middle">'
              f'Data: SPC Pacific Data Hub · annual rainfall anomalies in % of the 1991–2020 normal '
@@ -639,6 +632,7 @@ html = f"""<!DOCTYPE html>
   .standb {{ font-style:normal; font-weight:600; fill:{INK}; }}
   .cap    {{ font:400 10px 'Outfit',sans-serif; fill:{FAINT}; }}
   .bignum {{ font:700 27px 'Fraunces',Georgia,serif; }}
+  .terr   {{ font:600 11px 'Outfit',sans-serif; letter-spacing:0.14em; }}
   .biglab {{ font:600 8.5px 'Outfit',sans-serif; letter-spacing:0.2em; fill:{SUB}; }}
   .anno   {{ font:italic 500 15.5px 'Fraunces',Georgia,serif; opacity:0.85; }}
   .call   {{ font:italic 400 11px 'Fraunces',Georgia,serif; }}
