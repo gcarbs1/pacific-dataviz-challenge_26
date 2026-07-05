@@ -298,9 +298,17 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 # flag-drop falls inward; where it decreased, a faded flag-drop evaporates
 # outward.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 722.0
+# Golden composition. The page's three vertical bands sit in a continued
+# golden ratio: sky (cap line 206 -> ring top 488) = 282 px, ocean diameter
+# = 456 px, foot (ring bottom 944 -> legend baseline 1118) = 174 px, so
+# 456/282 = 1.617 and 282/174 = 1.621, both within 0.2% of phi. Inside the
+# sky band the two golden divisions land on the emblem centres (y ~ 314)
+# and the corner count blocks (y ~ 380). The 36-degree gap at 12 o'clock
+# is the golden-triangle angle of the pentagram, and K is set so the
+# deepest drop tip touches the ocean's golden radius RB/phi.
+CX, CY = 420.0, 716.0
 RB = 228.0                      # the old-balance ring
-K = 5.8                         # px per % point of shift
+K = 5.69                        # px per % point: max stem = RB*(1-1/phi)
 GAP = 36.0                      # degrees kept clear at 12 o'clock
 A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
@@ -570,19 +578,20 @@ def corners():
     # west / wetter — top-left, on the same baselines as the block under
     # the sun so the two sky columns mirror each other
     p.append(f'<text x="44" y="248" class="anno halo" fill="{WET_D}">where the rain moved in</text>')
-    # the number sits vertically centred between the two stacked words
-    p.append(f'<text x="44" y="401" class="bignum" fill="{WET_D}">{n_wet}</text>')
-    p.append(f'<text x="143" y="386" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
-    p.append(f'<text x="143" y="402" class="biglab" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
+    # the number sits vertically centred between the two stacked words,
+    # the block itself centred on the sky band's lower golden division
+    p.append(f'<text x="44" y="387" class="bignum" fill="{WET_D}">{n_wet}</text>')
+    p.append(f'<text x="143" y="372" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
+    p.append(f'<text x="143" y="388" class="biglab" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
     p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
     p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
-    p.append(f'<text x="{W - 40}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
-    p.append(f'<text x="{W - 40 - 102}" y="401" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
-    p.append(f'<text x="{W - 40 - 45}" y="386" class="terr" style="fill:{DRY_D}" text-anchor="middle">TERRITORIES</text>')
-    p.append(f'<text x="{W - 40 - 45}" y="402" class="biglab" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
+    p.append(f'<text x="{W - 44}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
+    p.append(f'<text x="{W - 44 - 102}" y="387" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
+    p.append(f'<text x="{W - 44 - 45}" y="372" class="terr" style="fill:{DRY_D}" text-anchor="middle">TERRITORIES</text>')
+    p.append(f'<text x="{W - 44 - 45}" y="388" class="biglab" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
     p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')

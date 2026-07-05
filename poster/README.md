@@ -55,6 +55,19 @@ single quiet legend line sits at the foot — nothing is written over the art.
    corners are computed from the data at build time (the build fails if a
    claim stops being true).
 
+## Composition
+
+The layout follows one golden-ratio system rather than scattered rules.
+The page's three vertical bands run in a continued golden ratio — sky
+(caption line to ring top, 282 px), ocean (ring diameter, 456 px) and foot
+(ring bottom to legend baseline, 174 px), so 456 / 282 ≈ 282 / 174 ≈ φ.
+Inside the sky band the two golden divisions carry the two sky columns:
+the emblems (sun and rain clouds) sit on the upper division and the count
+blocks on the lower one, with equal 66 px steps from headline to emblem to
+count. The drop scale is set so the deepest drop tip touches the ocean's
+golden radius (RB / φ), and the 36° gap at 12 o'clock is the
+golden-triangle angle of the pentagram. The sheet itself is A4's √2.
+
 ## Files
 
 - `a4.html` — the poster (open in any browser; prints clean on A4).
