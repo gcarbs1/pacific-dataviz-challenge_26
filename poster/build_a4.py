@@ -298,7 +298,7 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 # flag-drop falls inward; where it decreased, a faded flag-drop evaporates
 # outward.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 706.0
+CX, CY = 420.0, 722.0
 RB = 228.0                      # the old-balance ring
 K = 5.8                         # px per % point of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
