@@ -272,7 +272,7 @@ CAP_UP.update({"CK": "#012169", "PF": "#CE1126", "PN": "#012169"})
 # flag-drop falls inward; where it decreased, a faded flag-drop evaporates
 # outward.
 W, Hpx = 840, 1188
-CX, CY = 420.0, 672.0
+CX, CY = 420.0, 690.0
 RB = 228.0                      # the old-balance ring
 K = 4.2                         # px per mm of shift
 GAP = 36.0                      # degrees kept clear at 12 o'clock
@@ -425,32 +425,36 @@ art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" 
 art.append(f'<text x="{CX}" y="{RT - 26:.0f}" class="linelab" text-anchor="middle">THE OLD BALANCE</text>')
 art.append(f'<text x="{CX}" y="{RT - 13:.0f}" class="avg" fill="{SUB}" font-style="italic" text-anchor="middle">the ring: average rain of 1979–2019</text>')
 
-# --- centre compass: reading direction --------------------------------------------
-art.append(f'<circle cx="{CX}" cy="{CY}" r="2.6" fill="{SUB}"/>')
-for i in range(8):
-    a = math.radians(-90 + i * 45)
-    rr = 14 if i % 2 == 0 else 9
-    art.append(f'<line x1="{CX + 6 * math.cos(a):.1f}" y1="{CY + 6 * math.sin(a):.1f}" '
-               f'x2="{CX + rr * math.cos(a):.1f}" y2="{CY + rr * math.sin(a):.1f}" '
-               f'stroke="{SUB}" stroke-opacity="0.7" stroke-width="1"/>')
-# reading direction: one revolution of the water cycle. A near-full arrow
-# runs clockwise from the evaporating side to the raining side, a tiny
-# rising drop at its tail and a falling drop at its head.
-ca0, ca1 = math.radians(-56), math.radians(232)
-cx0, cy0 = pt(30, ca0)
-cx1, cy1 = pt(30, ca1)
-art.append(f'<path d="M {cx0:.1f} {cy0:.1f} A 30 30 0 1 1 {cx1:.1f} {cy1:.1f}" '
-           f'fill="none" stroke="{SUB}" stroke-opacity="0.7" stroke-width="1"/>')
-tx, ty = math.cos(ca1 + math.pi / 2), math.sin(ca1 + math.pi / 2)
-art.append(f'<polygon points="{cx1 + 3.2 * math.cos(ca1):.1f},{cy1 + 3.2 * math.sin(ca1):.1f} '
-           f'{cx1 - 3.2 * math.cos(ca1) + 5.5 * tx:.1f},{cy1 - 3.2 * math.sin(ca1) + 5.5 * ty:.1f} '
-           f'{cx1 - 3.2 * math.cos(ca1) - 0.5 * tx:.1f},{cy1 - 3.2 * math.sin(ca1) - 0.5 * ty:.1f}" '
-           f'fill="{SUB}" fill-opacity="0.8"/>')
-dx0, dy0 = pt(41, math.radians(-64))
-dx1, dy1 = pt(41, math.radians(240))
-art.append(f'<path d="{drop_path(dx0, dy0 + 2.6, 2.6, up=True)}" fill="{PAPER}" '
-           f'stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
-art.append(f'<path d="{drop_path(dx1, dy1 + 2.6, 2.6)}" fill="{WET}"/>')
+# --- rain clouds in the top-left sky, answering the sun ---------------------------
+# the raining side's emblem: three grey clouds and their falling drops,
+# clustered at the same height as the sun so the two skies balance
+defs.append('''<radialGradient id="glowSea" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="#8fd0e8" stop-opacity="0.32"/>
+  <stop offset="0.6" stop-color="#8fd0e8" stop-opacity="0.12"/>
+  <stop offset="1" stop-color="#8fd0e8" stop-opacity="0"/></radialGradient>''')
+
+# soft grey masses, no outlines at all: three clouds built from blurred
+# overlapping ellipses, like weather rolling in, and the rain falling as a
+# curtain of fine slanted strokes in the ocean's hairline language
+defs.append('<filter id="blc" x="-60%" y="-60%" width="220%" height="220%">'
+            '<feGaussianBlur stdDeviation="3.2"/></filter>')
+rng2 = random.Random(7)
+art.append('<circle cx="106" cy="286" r="62" fill="url(#glowSea)"/>')
+for cx_, cy_, tone_, op_, blobs_ in (
+        (64, 262, "#cfd9de", 0.65, ((0, 0, 20, 12), (-15, 3, 14, 9), (14, 2, 15, 9))),
+        (148, 252, "#d3dce1", 0.60, ((0, 0, 22, 12), (-16, 3, 15, 9), (15, 2, 16, 10))),
+        (102, 288, "#bfccd4", 0.85, ((0, 0, 32, 16), (-25, 4, 20, 12), (25, 3, 22, 13),
+                                     (7, -13, 21, 12), (-13, -9, 17, 10)))):
+    for dx_, dy_, rx_, ry_ in blobs_:
+        art.append(f'<ellipse cx="{cx_ + dx_}" cy="{cy_ + dy_}" rx="{rx_}" ry="{ry_}" '
+                   f'fill="{tone_}" fill-opacity="{op_}" filter="url(#blc)"/>')
+for i in range(13):
+    rx = 56 + i * 7.2 + rng2.uniform(-1.6, 1.6)
+    ry = 300 + (i % 3) * 4.5 + rng2.uniform(0, 3)
+    ln = 9 + 7 * rng2.random()
+    op = 0.14 + 0.18 * rng2.random()
+    art.append(f'<line x1="{rx:.1f}" y1="{ry:.1f}" x2="{rx - 2.4:.1f}" y2="{ry + ln:.1f}" '
+               f'stroke="{WET}" stroke-opacity="{op:.2f}" stroke-width="0.8" stroke-linecap="round"/>')
 
 # --- the 22 territories, radially -------------------------------------------------
 
@@ -540,18 +544,19 @@ ART = f'<defs>{"".join(defs)}</defs>' + "".join(art)
 # --- sky-corner narration (nothing over the artwork) ------------------------------
 def corners():
     p = []
-    # west / wetter — top-left
-    p.append(f'<text x="44" y="330" class="anno" fill="{WET_D}">the west fills up</text>')
-    p.append(f'<text x="44" y="364" class="bignum" fill="{WET_D}">{n_wet}</text>')
-    p.append(f'<text x="44" y="380" class="biglab">TERRITORIES NOW WETTER</text>')
+    # west / wetter — top-left, on the same baselines as the block under
+    # the sun so the two sky columns mirror each other
+    p.append(f'<text x="44" y="356" class="anno" fill="{WET_D}">the west fills up</text>')
+    p.append(f'<text x="44" y="390" class="bignum" fill="{WET_D}">{n_wet}</text>')
+    p.append(f'<text x="44" y="406" class="biglab">TERRITORIES NOW WETTER</text>')
     # micronesia note — bottom-left, balancing the sun
     p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years on</text>')
-    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">record have all come since 2019; the</text>')
+    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">record have all come since 2019. The</text>')
     p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}).</text>')
     # centre / drier — top-right, under the sun
-    p.append(f'<text x="{W - 40}" y="366" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
-    p.append(f'<text x="{W - 40}" y="400" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
-    p.append(f'<text x="{W - 40}" y="416" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
+    p.append(f'<text x="{W - 40}" y="356" class="anno" fill="{DRY_D}" text-anchor="end">the centre dries out</text>')
+    p.append(f'<text x="{W - 40}" y="390" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
+    p.append(f'<text x="{W - 40}" y="406" class="biglab" text-anchor="end">TERRITORIES NOW DRIER</text>')
     # nauru note — bottom-right, mirroring the micronesia note
     p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
     p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)} mm</tspan> in 2019, its wettest</text>')
@@ -566,7 +571,7 @@ def below():
     x = 72
     p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
     p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
-    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain;</text>')
+    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain,</text>')
     p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">distance &amp; size = shift, avg 2020–25 vs 1979–2019</text>')
     x = 330
     p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
@@ -577,7 +582,7 @@ def below():
     x = 570
     p.append(f'<line x1="{x}" y1="{y0 - 9}" x2="{x}" y2="{y0 + 9}" stroke="{WET}" stroke-opacity="0.55" stroke-width="1"/>')
     p.append(f'<line x1="{x + 5}" y1="{y0 - 9}" x2="{x + 5}" y2="{y0 + 9}" stroke="{DRY}" stroke-opacity="0.45" stroke-width="1" stroke-dasharray="2 3"/>')
-    p.append(f'<text x="{x + 16}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts hang from a solid thread;</text>')
+    p.append(f'<text x="{x + 16}" y="{y0}" class="tiny" fill="{SUB}">the nine biggest shifts hang from a solid thread,</text>')
     p.append(f'<text x="{x + 16}" y="{y0 + 11}" class="tiny" fill="{SUB}">the others from a dotted one</text>')
     # data-source footnote
     p.append(f'<text x="{W / 2}" y="{y0 + 38}" class="cap" text-anchor="middle">'
@@ -640,7 +645,7 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis doesn’t just bring more heat: it redistributes the water.</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Compared with the four decades to 2019, the same sky that now <tspan class="standb">floods the western Pacific</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">is <tspan class="standb">emptying over the atolls of the centre</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift — driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
+  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest · the ocean lies inside the ring, the sky outside</text>
 
   <!-- sky corners -->
   {corners()}

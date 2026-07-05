@@ -44,10 +44,11 @@ single quiet legend line sits at the foot — nothing is written over the art.
    threads reach down into the ocean, warm ones rise into the sky.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
    format for all 22 territories — country name, shift beneath it — placed
-   past the drop so no text is ever written over the artwork. At the centre,
-   a small rose and a near-full circular arrow give the reading direction —
-   from a tiny rising drop (the evaporating side) clockwise round to a
-   falling one (the raining side). Record notes in the
+   past the drop so no text is ever written over the artwork. Two emblems
+   hold the sky at the same height, one per corner: the sun over the drying
+   side, three grey rain clouds over the raining side, each corner's
+   headline and count sharing the same baselines. The centre of the ocean
+   is left empty. Record notes in the
    corners are computed from the data at build time (the build fails if a
    claim stops being true).
 
