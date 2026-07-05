@@ -35,12 +35,15 @@ single quiet legend line sits at the foot — nothing is written over the art.
    at a gently hand-jittered angle so the compass breathes instead of ticking
    like a clock.
 3. **Flag-drops** rendered as glass — a specular pair lit by the page's one
-   sun (top-right), inner shading, a soft cast shadow on the water — fall
-   inward where rain increased (the drop has arrived in the ocean) and
-   evaporate outward, faded behind a warm solid outline, where rain
-   decreased. Distance from the ring + drop size = the shift in % of a
-   normal year's rain, measured against the radial ruler in the
-   12-o'clock gap.
+   sun (top-right), inner shading, a soft cast shadow thrown away from the
+   sun — fall inward where rain increased and evaporate outward, faded
+   behind a warm outline, where rain decreased. Distance from the ring +
+   drop size = the shift in % of a normal year's rain, measured against
+   the radial ruler in the 12-o'clock gap. Two near-invisible climate
+   washes tint each half of the sky (cool over the raining corner, warm
+   under the sun), a whispered circle marks the ocean's golden radius that
+   the deepest drop just touches, and the dot of the i in the title's
+   "rain" is a single falling drop.
 4. **Threads** — every drop hangs from its berth on the ring by the same
    fine solid thread: blue threads reach down into the ocean, warm ones
    rise into the sky.

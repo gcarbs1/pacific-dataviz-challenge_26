@@ -392,6 +392,18 @@ defs.append('''<linearGradient id="shW" x1="0" y1="0" x2="0" y2="1">
   <feColorMatrix type="matrix" values="0 0 0 0 0.13  0 0 0 0 0.18  0 0 0 0 0.22  0 0 0 0.05 0"/>
 </filter>''')
 
+# --- two faint climate washes tie each sky corner to its half of the story --------
+defs.append(f'''<radialGradient id="washW" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="{SKY}" stop-opacity="0.09"/>
+  <stop offset="0.7" stop-color="{SKY}" stop-opacity="0.035"/>
+  <stop offset="1" stop-color="{SKY}" stop-opacity="0"/></radialGradient>
+<radialGradient id="washD" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="#efba3e" stop-opacity="0.07"/>
+  <stop offset="0.7" stop-color="#efba3e" stop-opacity="0.03"/>
+  <stop offset="1" stop-color="#efba3e" stop-opacity="0"/></radialGradient>''')
+art.append('<circle cx="128" cy="330" r="280" fill="url(#washW)"/>')
+art.append('<circle cx="726" cy="330" r="280" fill="url(#washD)"/>')
+
 # --- the ocean: engraved water, line by line ------------------------------------
 defs.append(f'''<radialGradient id="sea" cx="0.5" cy="0.46" r="0.62">
   <stop offset="0" stop-color="#f4fafc"/>
@@ -416,6 +428,9 @@ for i in range(n_eng):
 
 # depth at the water's edge, and a sheen where the sun strikes it
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="url(#rim)"/>')
+# the ocean's golden radius, a whispered guide the deepest drop touches
+art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB / 1.61803:.1f}" fill="none" '
+           f'stroke="{WET_D}" stroke-opacity="0.09" stroke-width="0.7"/>')
 for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)):
     x0_, y0_ = pt(rr_, math.radians(a0_))
     x1_, y1_ = pt(rr_, math.radians(a1_))
@@ -518,9 +533,9 @@ for iso in ORDER:
                 -vx * math.sin(_r) + vy * math.cos(_r))
 
     if wet:
-        # the drop's soft shadow on the water
-        sxl, syl = loc(-3.5, 4.5)
-        g.append(f'<ellipse cx="{sxl:.1f}" cy="{cy_l + syl:.1f}" rx="{0.94 * r:.1f}" ry="{0.86 * r:.1f}" fill="{INK}" opacity="0.10" filter="url(#bl2)"/>')
+        # the drop casts a soft shadow away from the page's sun
+        sxl, syl = loc(-4.2, 5.2)
+        g.append(f'<ellipse cx="{sxl:.1f}" cy="{cy_l + syl:.1f}" rx="{0.94 * r:.1f}" ry="{0.86 * r:.1f}" fill="{INK}" opacity="0.13" filter="url(#bl2)"/>')
     g.append(f'<path d="{dp}" fill="{cap}" filter="url(#{"ds" if wet else "dsU"})"/>')
     fw, fh = 2.35 * r, 1.55 * r
     g.append(f'<g clip-path="url(#c{iso})"><g transform="translate({-fw / 2:.1f},{cy_l - fh / 2:.1f}) scale({fw / 100:.3f},{fh / 64:.3f})">{flag_svg2(iso)}</g></g>')
@@ -623,6 +638,21 @@ def below():
              f'The same pattern runs through the full 47-year trend.</text>')
     return "".join(p)
 
+# --- tapa frame, woven with an alternating rhythm ----------------------------------
+def tapa():
+    p = []
+    for i, xx in enumerate(range(14, W - 18, 22)):
+        op = 0.42 if i % 2 == 0 else 0.24
+        p.append(f'<path d="M {xx} 14 L {xx + 7} 6 L {xx + 14} 14" fill="none" stroke="{DRY}" stroke-opacity="{op}" stroke-width="1"/>')
+        p.append(f'<path d="M {xx} 1174 L {xx + 7} 1182 L {xx + 14} 1174" fill="none" stroke="{DRY}" stroke-opacity="{op}" stroke-width="1"/>')
+    for i, yy in enumerate(range(26, 1156, 22)):
+        op = 0.42 if i % 2 == 0 else 0.24
+        p.append(f'<path d="M 14 {yy} L 6 {yy + 7} L 14 {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="{op}" stroke-width="1"/>')
+        p.append(f'<path d="M {W - 14} {yy} L {W - 6} {yy + 7} L {W - 14} {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="{op}" stroke-width="1"/>')
+    return "".join(p)
+
+FRAME = tapa()
+
 # ================================================================= html ==========
 html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -669,13 +699,12 @@ html = f"""<!DOCTYPE html>
   <rect width="{W}" height="{Hpx}" fill="{PAPER}"/>
 
   <!-- tapa frame, woven all the way round -->
-  {"".join(f'<path d="M {xx} 14 L {xx + 7} 6 L {xx + 14} 14" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for xx in range(14, W - 18, 22))}
-  {"".join(f'<path d="M {xx} 1174 L {xx + 7} 1182 L {xx + 14} 1174" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for xx in range(14, W - 18, 22))}
-  {"".join(f'<path d="M 14 {yy} L 6 {yy + 7} L 14 {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for yy in range(26, 1156, 22))}
-  {"".join(f'<path d="M {W - 14} {yy} L {W - 6} {yy + 7} L {W - 14} {yy + 14}" fill="none" stroke="{DRY}" stroke-opacity="0.4" stroke-width="1"/>' for yy in range(26, 1156, 22))}
+  {FRAME}
 
   <!-- header -->
-  <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">rain</tspan> went</text>
+  <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">raın</tspan> went</text>
+  <path d="{drop_path(506.5, 68.0, 4.0)}" fill="{WET}"/>
+  <circle cx="507.8" cy="66.2" r="1.4" fill="#ffffff" opacity="0.65"/>
   <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific. Between the record’s first twenty years</text>
   <text x="{W / 2}" y="162" class="stand" text-anchor="middle">and its last, the sky itself has tilted, <tspan class="standb">pouring ever more rain on the west and south</tspan></text>
   <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls run dry</tspan>. Same ocean, different rain.</text>
