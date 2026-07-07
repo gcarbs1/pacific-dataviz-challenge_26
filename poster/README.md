@@ -37,16 +37,20 @@ single quiet legend line sits at the foot — nothing is written over the art.
 3. **Flag-drops** rendered as glass — a specular pair lit by the page's one
    sun (top-right), inner shading, a soft cast shadow thrown away from the
    sun — fall inward where rain increased and evaporate outward, faded
-   behind a warm outline, where rain decreased. Distance from the ring +
-   drop size = the shift in % of a normal year's rain, measured against
-   the radial ruler in the 12-o'clock gap. Two near-invisible climate
-   washes tint each half of the sky (cool over the raining corner, warm
-   under the sun), a whispered circle marks the ocean's golden radius that
-   the deepest drop just touches, and the dot of the i in the title's
-   "rain" is a single falling drop.
-4. **Threads** — every drop hangs from its berth on the ring by the same
-   fine solid thread: blue threads reach down into the ocean, warm ones
-   rise into the sky.
+   behind a warm outline, where rain decreased. Each drop's tip kisses its
+   berth on the ring and its **size alone is the datum**: the shift in % of
+   a normal year's rain, measured against the radial ruler in the
+   12-o'clock gap, whose ticks mark how far a drop of 5, 10 or 15% reaches
+   from the ring — up into the sky for rain lost, down into the ocean for
+   rain gained. Two near-invisible climate washes tint each half of the
+   sky (cool over the raining corner, warm under the sun), a whispered
+   circle marks the ocean's golden radius that the biggest drops dive
+   past, and the dot of the i in the title's "rain" is a single falling
+   drop.
+4. **The size ladder** — drop radii run the ring's own golden series, from
+   RB / φ⁴ for the record shift down to RB / φ⁶ (two golden steps below)
+   near zero, and the size curve climbs with exponent φ, so the extremes
+   tower over the mild shifts while the smallest flags stay legible.
 5. **Radial labels** read outward like compass spokes, one uniform two-line
    format for all 22 territories — country name, shift beneath it (the
    three driest and three wettest in bold) — placed
@@ -67,9 +71,9 @@ The page's three vertical bands run in a continued golden ratio — sky
 Inside the sky band the two golden divisions carry the two sky columns:
 the emblems (sun and rain clouds) sit on the upper division and the count
 blocks on the lower one, with equal 66 px steps from headline to emblem to
-count. The drop scale is set so the deepest drop tip touches the ocean's
-golden radius (RB / φ), and the 36° gap at 12 o'clock is the
-golden-triangle angle of the pentagram. The sheet itself is A4's √2.
+count. The drop sizes are the ring's own golden series (radii from
+RB / φ⁴ down to RB / φ⁶, curve exponent φ), and the 36° gap at 12 o'clock
+is the golden-triangle angle of the pentagram. The sheet itself is A4's √2.
 
 ## Files
 

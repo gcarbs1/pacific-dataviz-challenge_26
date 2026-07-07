@@ -3,16 +3,15 @@
 WHERE THE RAIN WENT — A4 art poster (light background, flag drops).
 One page, one artwork, nothing written over it:
   1. flag-drops around the ring, ordered by the shift itself (driest ->
-     wettest, clockwise); distance from the "old balance" ring + drop size =
-     shift between the record's first twenty years (1979-1998) and its last
-     twenty (2006-2025), in % of the 1991-2020 normal (the source CSV
-     mislabels the unit as mm). The 20v20 cut was chosen over the 2020s
-     window, record halves, the fitted 47-year trend and the 2020s-vs-normal:
-     it tracks the full trend almost perfectly (rank corr 0.98), is the most
-     internally stable cut (odd/even-year split 0.90) and needs no statistics
-     to explain
-  2. each featured stem is a year-by-year barcode (47 annual anomalies)
-  3. legend, computed record notes and credits arranged below the art
+     wettest, clockwise); each drop's tip kisses its berth on the ring and
+     the drop's size alone carries the datum: the shift between the record's
+     first twenty years (1979-1998) and its last twenty (2006-2025), in % of
+     the 1991-2020 normal (the source CSV mislabels the unit as mm). The
+     20v20 cut was chosen over the 2020s window, record halves, the fitted
+     47-year trend and the 2020s-vs-normal: it tracks the full trend almost
+     perfectly (rank corr 0.98), is the most internally stable cut
+     (odd/even-year split 0.90) and needs no statistics to explain
+  2. legend, computed record notes and credits arranged below the art
 
 Builds poster/a4.html from data/rainfall_anomalies/data.csv.
 """
@@ -304,46 +303,59 @@ W, Hpx = 840, 1188
 # 456/282 = 1.617 and 282/174 = 1.621, both within 0.2% of phi. Inside the
 # sky band the two golden divisions land on the emblem centres (y ~ 314)
 # and the corner count blocks (y ~ 380). The 36-degree gap at 12 o'clock
-# is the golden-triangle angle of the pentagram, and K is set so the
-# deepest drop tip touches the ocean's golden radius RB/phi.
+# is the golden-triangle angle of the pentagram. No stems: the drop's tip
+# kisses its berth on the ring and its size alone is the datum, on the
+# ring's own golden ladder — the largest drop's radius is RB/phi^4, the
+# smallest RB/phi^6, two phi steps down, and the size curve climbs with
+# exponent phi so the record shifts visibly tower over the mild ones.
 CX, CY = 420.0, 716.0
 RB = 228.0                      # the old-balance ring
-K = 5.69                        # px per % point: max stem = RB*(1-1/phi)
 GAP = 36.0                      # degrees kept clear at 12 o'clock
 A0 = -90.0 + GAP / 2.0
 SPAN = 360.0 - GAP
+PHI = (1.0 + 5.0 ** 0.5) / 2.0
+TIPGAP = 2.0                    # breath between ring and drop tip
+DMAX = float(stats.delta.abs().max())
+R_MAX = RB / PHI ** 4
+R_MIN = RB / PHI ** 6
 
 # a little organic breathing room: hand-tuned angular offsets, in degrees
 # (small alternating nudges so the wheel breathes instead of ticking)
-AJIT = {"NR": 0.8, "KI": -0.6, "TV": 0.5, "TK": -0.5, "PN": 0.6, "NC": -0.6,
+AJIT = {"NR": -0.6, "KI": -0.6, "TV": 0.5, "TK": -0.5, "PN": 0.6, "NC": -0.6,
         "PF": 0.5, "CK": -0.5, "MP": 0.4, "GU": -0.5, "AS": 0.5, "PG": -0.4,
-        "WS": 0.6, "MH": -0.5, "FJ": 0.4, "WF": -0.6, "TO": 0.5, "NU": -0.4,
+        "WS": 0.6, "MH": -0.5, "FJ": 0.4, "WF": -0.6, "TO": -0.5, "NU": -0.4,
         "PW": 0.5, "SB": -0.6, "FM": 0.4, "VU": -0.6}
 
 def rsize(d):
-    return 7.6 + abs(d) * 0.62
+    # the size IS the datum: radius climbs from R_MIN to R_MAX with the
+    # shift, curved by the golden exponent phi — the smallest drops stay
+    # legible while the extremes swell to command the wheel
+    return R_MIN + (R_MAX - R_MIN) * (min(1.0, abs(d) / DMAX)) ** PHI
 
 # berth widths: not equal sectors — each territory takes an angular footprint
 # proportional to how much room its drop actually needs at the radius where
-# it lives (deep wet drops sit near the centre, where a degree is worth
+# it lives (big wet drops sit near the centre, where a degree is worth
 # fewer pixels), and the leftover slack is shared out evenly. The two
 # extremes stay pinned to the edges of the 12-o'clock gap.
 def footprint(iso):
     d = float(stats.loc[iso, "delta"])
     r = rsize(d)
-    stem = abs(d) * K
     if d >= 0:
-        rc = RB - stem - 2.05 * r           # drop centre, down in the ocean
+        rc = RB - TIPGAP - 2.05 * r         # drop centre, down in the ocean
         lab = 25.0 / (RB + 22.0)            # two-line label just off the ring
     else:
-        rc = RB + stem + 2.05 * r           # drop centre, up in the sky
-        lab = 25.0 / (RB + stem + 3.05 * r + 30.0)
-    body = 2.0 * math.asin(min(0.95, (r + 4.0) / max(rc, 40.0)))
+        rc = RB + TIPGAP + 2.05 * r         # drop centre, up in the sky
+        lab = 25.0 / (RB + TIPGAP + 3.05 * r + 30.0)
+    body = 2.0 * math.asin(min(0.95, (r + 3.0) / max(rc, 40.0)))
     return math.degrees(max(body, lab))
 
 FOOT = [footprint(iso) for iso in ORDER]
+# breath between the wettest drop and the ruler: only the gained side needs
+# it — the deep wet drops live close to the centre, where the ruler's lower
+# half hangs, while the dry side clears the ruler naturally
+EDGE = 2.5
 _pairs = [(a + b) / 2.0 for a, b in zip(FOOT, FOOT[1:])]
-_slack = (SPAN - sum(_pairs)) / len(_pairs)
+_slack = (SPAN - EDGE - sum(_pairs)) / len(_pairs)
 assert _slack > 0, "wheel is over-full; loosen the footprint padding"
 BERTH = {ORDER[0]: A0}
 _acc = A0
@@ -428,7 +440,7 @@ for i in range(n_eng):
 
 # depth at the water's edge, and a sheen where the sun strikes it
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB}" fill="url(#rim)"/>')
-# the ocean's golden radius, a whispered guide the deepest drop touches
+# the ocean's golden radius, a whispered guide the biggest drops dive past
 art.append(f'<circle cx="{CX}" cy="{CY}" r="{RB / 1.61803:.1f}" fill="none" '
            f'stroke="{WET_D}" stroke-opacity="0.09" stroke-width="0.7"/>')
 for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)):
@@ -458,16 +470,24 @@ for iso_ in ORDER:
     tx2, ty2 = pt(RB + 3.5, a_)
     art.append(f'<line x1="{tx1:.1f}" y1="{ty1:.1f}" x2="{tx2:.1f}" y2="{ty2:.1f}" stroke="{INK}" stroke-opacity="0.35" stroke-width="1"/>')
 
-# --- radial % ruler in the 12-o'clock gap ---------------------------------------
-RT = CY - RB - 16 * K           # outer end (16 points lost)
-RG = CY - RB + 16 * K           # inner end (16 points gained)
-art.append(f'<line x1="{CX}" y1="{RT:.0f}" x2="{CX}" y2="{RG:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
-for m in range(-15, 16, 5):
-    y = CY - RB - m * K
-    major = abs(m) >= 10
-    art.append(f'<line x1="{CX}" y1="{y:.0f}" x2="{CX + (6 if major else 3.5)}" y2="{y:.0f}" stroke="{SUB}" stroke-width="0.9"/>')
-    if major:
-        art.append(f'<text x="{CX + 9}" y="{y + 2.5:.0f}" class="rul halo" fill="{SUB}">{abs(m)}</text>')
+# --- radial drop-size ruler in the 12-o'clock gap ---------------------------------
+# the ruler measures the drops themselves: each tick marks how far a drop
+# of 5, 10 or 15% reaches from the ring — up into the sky for rain lost,
+# down into the ocean for rain gained. The spacing stretches like a slide
+# rule, because size climbs with the golden exponent
+def reach(m):
+    return TIPGAP + 3.05 * rsize(m)
+
+RT = CY - RB - reach(15.0) - 4.0    # outer end, just past a 15% drop
+RG = CY - RB + reach(15.0) + 4.0    # inner end, mirrored in the ocean
+art.append(f'<line x1="{CX}" y1="{RT:.1f}" x2="{CX}" y2="{RG:.1f}" stroke="{SUB}" stroke-width="0.9"/>')
+for m in (5.0, 10.0, 15.0):
+    for sg in (-1, 1):
+        y = CY - RB + sg * reach(m)
+        major = m >= 10
+        art.append(f'<line x1="{CX}" y1="{y:.1f}" x2="{CX + (6 if major else 3.5)}" y2="{y:.1f}" stroke="{SUB}" stroke-width="0.9"/>')
+        if major:
+            art.append(f'<text x="{CX + 9}" y="{y + 2.5:.1f}" class="rul halo" fill="{SUB}">{m:.0f}</text>')
 art.append(f'<text x="{CX + 9}" y="{CY - RB + 2.5:.0f}" class="rul halo" fill="{INK}">0%</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB - 62})" x="{CX - 8}" y="{CY - RB - 59}" class="tinyb halo" fill="{DRY_D}" text-anchor="middle">RAIN LOST</text>')
 art.append(f'<text transform="rotate(-90 {CX - 8} {CY - RB + 52})" x="{CX - 8}" y="{CY - RB + 55}" class="tinyb halo" fill="{WET_D}" text-anchor="middle">RAIN GAINED</text>')
@@ -517,14 +537,10 @@ for iso in ORDER:
     wet = d >= 0
     sgn = 1 if wet else -1
     feat = iso in FEATURED
-    stem = abs(d) * K
     r = rsize(d)
-    cy_l = -RB + (stem + 2.05 * r) * sgn
-    tip_l = -RB + stem * sgn
+    # no stem: the tip kisses the berth, the body grows with the shift
+    cy_l = -RB + (TIPGAP + 2.05 * r) * sgn
     g = [f'<g transform="translate({CX},{CY}) rotate({deg:.2f})">']
-    c = WET if wet else DRY
-    # every drop hangs from its berth by the same fine solid thread
-    g.append(f'<line x1="0" y1="{-RB + 4 * sgn}" x2="0" y2="{tip_l:.1f}" stroke="{c}" stroke-opacity="0.5" stroke-width="1"/>')
     dp = drop_path(0, cy_l, r, up=not wet)
     defs.append(f'<clipPath id="c{iso}"><path d="{dp}"/></clipPath>')
     cap = (CAP if wet else CAP_UP).get(iso, WET)
@@ -563,7 +579,7 @@ for iso in ORDER:
     # territory gets the same two lines — country name, shift beneath it
     a_deg = math.degrees(a)
     right = a_deg <= 90.0
-    r0 = (RB + 10.0) if wet else (RB + stem + 3.05 * r + 12.0)
+    r0 = (RB + 10.0) if wet else (RB + TIPGAP + 3.05 * r + 12.0)
     perp = (-math.sin(a), math.cos(a))
     off_sign = 1 if right else -1
     cval = WET_D if wet else DRY_D
