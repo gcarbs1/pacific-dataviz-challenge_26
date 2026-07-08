@@ -75,12 +75,10 @@ ORDER = stats.delta.sort_values().index.tolist()
 n_wet = int((stats.delta > 0).sum())
 n_dry = int((stats.delta < 0).sum())
 
-# facts for callouts, verified from the data at build time
-nr = dict(series["NR"])
-NR_2019, NR_2022 = nr[2019], nr[2022]
-fm_top3 = sorted(series["FM"], key=lambda t: -t[1])[:3]
-assert min(y for y, _ in fm_top3) >= 2019, "FSM callout no longer true"
-SB_REC_YEAR, SB_REC_V = max(series["SB"], key=lambda t: t[1])
+# the wheel's two record-holders, for the closing line beneath the art
+DRIEST_ISO, WETTEST_ISO = ORDER[0], ORDER[-1]
+DRIEST_V, WETTEST_V = stats.delta[DRIEST_ISO], stats.delta[WETTEST_ISO]
+MEDIAN_SHIFT = float(stats.delta.abs().median())
 
 # ------------------------------------------------------------- palette ------
 PAPER = "#fbf7ee"
@@ -617,19 +615,22 @@ def corners():
     p.append(f'<text x="44" y="387" class="bignum" fill="{WET_D}">{n_wet}</text>')
     p.append(f'<text x="139" y="372" class="terr" style="fill:{WET_D}" text-anchor="middle">TERRITORIES</text>')
     p.append(f'<text x="139" y="388" class="terr" style="fill:{WET_D}" text-anchor="middle">NOW WETTER</text>')
-    # micronesia note — bottom-left, balancing the sun
-    p.append(f'<text x="44" y="1006" class="call" fill="{INK}">Micronesia’s three wettest years in 47</text>')
-    p.append(f'<text x="44" y="1020" class="call" fill="{INK}">years have all come since 2019. The</text>')
-    p.append(f'<text x="44" y="1034" class="call" fill="{INK}">Solomons’ record fell in {SB_REC_YEAR} ({fmt(SB_REC_V)}%).</text>')
     # centre / drier — top-right, under the sun
     p.append(f'<text x="{W - 44}" y="248" class="anno halo" fill="{DRY_D}" text-anchor="end">where the rain is leaving</text>')
     p.append(f'<text x="{W - 44 - 96}" y="387" class="bignum" fill="{DRY_D}" text-anchor="end">{n_dry}</text>')
     p.append(f'<text x="{W - 44 - 45}" y="372" class="terr" style="fill:{DRY_D}" text-anchor="middle">TERRITORIES</text>')
     p.append(f'<text x="{W - 44 - 45}" y="388" class="terr" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
-    # nauru note — bottom-right, mirroring the micronesia note
-    p.append(f'<text x="{W - 44}" y="992" class="call" fill="{INK}" text-anchor="end">Nauru’s sky has turned manic:</text>')
-    p.append(f'<text x="{W - 44}" y="1006" class="call" fill="{INK}" text-anchor="end"><tspan fill="{WET_D}" font-weight="600">{fmt(NR_2019)}%</tspan> in 2019, its wettest year</text>')
-    p.append(f'<text x="{W - 44}" y="1020" class="call" fill="{INK}" text-anchor="end">since 1979, then <tspan fill="{DRY_D}" font-weight="600">{fmt(NR_2022)}%</tspan> in 2022.</text>')
+    return "".join(p)
+
+# --- one closing line between the wheel and the legend ----------------------------
+def conclusion():
+    p = []
+    p.append(f'<text x="{W / 2}" y="1054" class="call" text-anchor="middle" fill="{INK}">'
+             f'This is not ordinary variability, it is the climate crisis redrawing the Pacific’s water map.</text>')
+    p.append(f'<text x="{W / 2}" y="1074" class="call" text-anchor="middle" fill="{INK}">'
+             f'<tspan fill="{WET_D}" font-weight="600">{NAMES[WETTEST_ISO]} now gains {WETTEST_V:.1f}% more rain</tspan>, '
+             f'<tspan fill="{DRY_D}" font-weight="600">{NAMES[DRIEST_ISO]} has lost {abs(DRIEST_V):.1f}%</tspan>, '
+             f'the same warming ocean pulling water in opposite directions.</text>')
     return "".join(p)
 
 # --- one quiet legend line at the foot ---------------------------------------------
@@ -724,16 +725,19 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">raın</tspan> went</text>
   <path d="{drop_path(506.5, 68.0, 4.0)}" fill="{WET}"/>
   <circle cx="507.8" cy="66.2" r="1.4" fill="#ffffff" opacity="0.65"/>
-  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific. Between the record’s first twenty years</text>
-  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">and its last, the sky itself has tilted, <tspan class="standb">pouring ever more rain on the west and south</tspan></text>
-  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls run dry</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, driest beneath the sun, clockwise round to wettest. The ocean lies inside the ring, the sky outside.</text>
+  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific, it is redrawing where the rain falls.</text>
+  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Comparing the record’s first twenty years with its last twenty, <tspan class="standb">the west and south have grown wetter</tspan></text>
+  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls have run dry</tspan>. Same ocean, different rain.</text>
+  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, from driest beneath the sun to wettest at the far side of the wheel. The ocean lies inside the ring, the sky outside.</text>
 
   <!-- sky corners -->
   {corners()}
 
   <!-- artwork -->
   {ART}
+
+  <!-- closing line -->
+  {conclusion()}
 
   <!-- legend -->
   {below()}
