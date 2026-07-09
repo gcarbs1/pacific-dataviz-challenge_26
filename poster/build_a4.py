@@ -15,9 +15,11 @@ One page, one artwork, nothing written over it:
 
 Builds poster/a4.html from data/rainfall_anomalies/data.csv.
 """
+import json
 import math
 import random
 from pathlib import Path
+from statistics import median
 
 import pandas as pd
 
@@ -622,40 +624,82 @@ def corners():
     p.append(f'<text x="{W - 44 - 45}" y="388" class="terr" style="fill:{DRY_D}" text-anchor="middle">NOW DRIER</text>')
     return "".join(p)
 
-# --- one closing line between the wheel and the legend ----------------------------
-def conclusion():
+# --- the same shift on the map: an equirectangular inset ---------------------------
+# every territory's generation shift again, this time at its true position:
+# a filled blue dot where the rain moved in, an open amber ring where it is
+# leaving, both sized by the shift itself. The dot positions are the median
+# point of each territory's coastline (plus the hand-added atoll specks),
+# so the geography is computed, not placed by hand.
+GEO = json.loads((ROOT / "data" / "geo" / "pacific_land.json").read_text())
+MAP_W, MAP_H = 300.0, 149.0
+MAP_X = 48.0
+MAP_Y = 1010.0
+LON0, LON1, LAT0, LAT1 = 126.0, 237.0, 24.0, -31.0
+
+def mx(lon):
+    return MAP_X + (lon - LON0) / (LON1 - LON0) * MAP_W
+
+def my(lat):
+    return MAP_Y + (LAT0 - lat) / (LAT0 - LAT1) * MAP_H
+
+def ring_path(ring):
+    return "M " + " L ".join(f"{mx(lo):.1f} {my(la):.1f}" for lo, la in ring) + " Z"
+
+def minimap():
     p = []
-    p.append(f'<text x="{W / 2}" y="1054" class="call" text-anchor="middle" fill="{INK}">'
-             f'This is not ordinary variability, it is the climate crisis redrawing the Pacific’s water map.</text>')
-    p.append(f'<text x="{W / 2}" y="1074" class="call" text-anchor="middle" fill="{INK}">'
-             f'<tspan fill="{WET_D}" font-weight="600">{NAMES[WETTEST_ISO]} now gains {WETTEST_V:.1f}% more rain</tspan>, '
-             f'<tspan fill="{DRY_D}" font-weight="600">{NAMES[DRIEST_ISO]} has lost {abs(DRIEST_V):.1f}%</tspan>, '
-             f'the same warming ocean pulling water in opposite directions.</text>')
+    p.append(f'<defs><clipPath id="mapclip"><rect x="{MAP_X:.1f}" y="{MAP_Y:.1f}" '
+             f'width="{MAP_W}" height="{MAP_H}"/></clipPath></defs>')
+    p.append(f'<rect x="{MAP_X:.1f}" y="{MAP_Y:.1f}" width="{MAP_W}" height="{MAP_H}" '
+             f'fill="#eef4f0" fill-opacity="0.5" stroke="{FAINT}" stroke-opacity="0.5" stroke-width="0.7"/>')
+    p.append('<g clip-path="url(#mapclip)">')
+    for ring in GEO["context"]:
+        p.append(f'<path d="{ring_path(ring)}" fill="{FAINT}" fill-opacity="0.26"/>')
+    for e in GEO["land"]:
+        p.append(f'<path d="{ring_path(e["ring"])}" fill="{SUB}" fill-opacity="0.7"/>')
+    for dots_ in GEO["dots"].values():
+        for lo, la in dots_:
+            p.append(f'<circle cx="{mx(lo):.1f}" cy="{my(la):.1f}" r="1.0" fill="{SUB}" fill-opacity="0.7"/>')
+    pts = {}
+    for e in GEO["land"]:
+        pts.setdefault(e["iso"], []).extend(e["ring"])
+    for iso_, dts in GEO["dots"].items():
+        pts.setdefault(iso_, []).extend(dts)
+    marks = []
+    for iso_ in ORDER:
+        d = float(stats.delta[iso_])
+        lo = median(q[0] for q in pts[iso_])
+        la = median(q[1] for q in pts[iso_])
+        marks.append(((1.6 + 3.6 * abs(d) / DMAX) * MAP_W / 190.0, d, mx(lo), my(la)))
+    # big shifts first, so the small ones stay readable on top of them
+    for r, d, x, y in sorted(marks, key=lambda m: -m[0]):
+        if d >= 0:
+            # a paper hairline keeps the crowded Polynesian dots separable
+            p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{WET}" fill-opacity="0.9" '
+                     f'stroke="{PAPER}" stroke-width="0.7"/>')
+        else:
+            p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{PAPER}" stroke="{DRY_D}" stroke-width="1"/>')
+    p.append("</g>")
     return "".join(p)
 
-# --- one quiet legend line at the foot ---------------------------------------------
+# --- the foot: the map at the left, one fluid conclusion beside it that carries -----
+# the map's legend inside the prose, and one quiet line saying where the
+# data came from
 def below():
     p = []
-    y0 = 1118
-    p.append(f'<line x1="60" y1="{y0 - 26}" x2="{W - 60}" y2="{y0 - 26}" stroke="{INK}" stroke-opacity="0.15" stroke-width="0.8"/>')
-    x = 180
-    p.append(f'<path d="{drop_path(x, y0 + 6, 5.5)}" fill="{WET}"/>')
-    p.append(f'<circle cx="{x + 1.7}" cy="{y0 + 3.8}" r="1.6" fill="#ffffff" opacity="0.6"/>')
-    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">flag-drop falling inward = gaining rain,</text>')
-    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">size = shift in % of normal rain, 2006–25 vs 1979–98</text>')
-    x = 480
-    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="{DRY}" opacity="0.5"/>')
-    p.append(f'<circle cx="{x + 1.7}" cy="{y0 - 2.2}" r="1.5" fill="#ffffff" opacity="0.4"/>')
-    p.append(f'<path d="{drop_path(x, y0, 5.5, up=True)}" fill="none" stroke="{DRY_D}" stroke-opacity="0.85" stroke-width="1"/>')
-    p.append(f'<text x="{x + 12}" y="{y0}" class="tiny" fill="{SUB}">faded drop rising = losing rain,</text>')
-    p.append(f'<text x="{x + 12}" y="{y0 + 11}" class="tiny" fill="{SUB}">evaporating back into the sky</text>')
-    # data-source footnote, plus one honest line about ENSO
-    p.append(f'<text x="{W / 2}" y="{y0 + 36}" class="cap" text-anchor="middle">'
-             f'Data: SPC Pacific Data Hub · annual rainfall anomalies in % of the 1991–2020 normal '
-             f'(DF_CLIMATE_CHANGE, RAIN_ANOM) · 22 Pacific territories, 1979–2025</text>')
-    p.append(f'<text x="{W / 2}" y="{y0 + 48}" class="cap" text-anchor="middle">'
-             f'The record’s first twenty years against its last twenty, one generation apart. '
-             f'The same pattern runs through the full 47-year trend.</text>')
+    p.append(minimap())
+    cx0 = MAP_X + MAP_W + 28
+    cw = W - 44 - cx0
+    p.append(f'<foreignObject x="{cx0:.0f}" y="1032" width="{cw:.0f}" height="118">'
+             f'<div xmlns="http://www.w3.org/1999/xhtml" class="concl">'
+             f'Back on the map, every <b class="w">filled blue dot</b> is a territory now gaining rain '
+             f'and every <b class="d">open amber ring</b> is one losing it, each sized by the same shift. '
+             f'<b class="w">{NAMES[WETTEST_ISO]} gains {WETTEST_V:.1f}% more rain</b> while '
+             f'<b class="d">{NAMES[DRIEST_ISO]} has lost {abs(DRIEST_V):.1f}%</b>, the same warming ocean '
+             f'pulling water in opposite directions. This is not ordinary variability, it is the climate '
+             f'crisis redrawing the Pacific’s water map.</div></foreignObject>')
+    p.append(f'<text x="{W / 2}" y="1172" class="cap" text-anchor="middle">'
+             f'Data: SPC Pacific Data Hub · DF_CLIMATE_CHANGE, RAIN_ANOM · annual rainfall anomalies '
+             f'in % of the 1991–2020 normal · 22 Pacific territories, 1979–2025</text>')
     return "".join(p)
 
 # --- tapa frame, woven with an alternating rhythm ----------------------------------
@@ -690,8 +734,13 @@ html = f"""<!DOCTYPE html>
   .kick   {{ font:600 10px 'Outfit',sans-serif; letter-spacing:0.32em; fill:{SUB}; }}
   .title  {{ font:600 58px 'Fraunces',Georgia,serif; fill:{INK}; }}
   .title .w {{ fill:{WET}; font-style:italic; }}
-  .stand  {{ font:italic 400 14.5px 'Fraunces',Georgia,serif; fill:{SUB}; }}
-  .standb {{ font-style:normal; font-weight:600; fill:{INK}; }}
+  .lead   {{ font:italic 400 12.5px 'Fraunces',Georgia,serif; color:{SUB}; line-height:17px;
+             text-align:justify; text-align-last:center; }}
+  .lead b {{ font-style:normal; font-weight:600; color:{INK}; }}
+  .concl  {{ font:italic 400 11.5px 'Fraunces',Georgia,serif; color:{INK}; line-height:16.5px;
+             text-align:justify; }}
+  .concl b.w {{ font-style:normal; font-weight:600; color:{WET_D}; }}
+  .concl b.d {{ font-style:normal; font-weight:600; color:{DRY_D}; }}
   .cap    {{ font:400 10px 'Outfit',sans-serif; fill:{FAINT}; }}
   .bignum {{ font:700 34px 'Fraunces',Georgia,serif; }}
   .terr   {{ font:600 11px 'Outfit',sans-serif; letter-spacing:0.14em; }}
@@ -725,10 +774,14 @@ html = f"""<!DOCTYPE html>
   <text x="{W / 2}" y="106" class="title" text-anchor="middle">Where the <tspan class="w">raın</tspan> went</text>
   <path d="{drop_path(506.5, 68.0, 4.0)}" fill="{WET}"/>
   <circle cx="507.8" cy="66.2" r="1.4" fill="#ffffff" opacity="0.65"/>
-  <text x="{W / 2}" y="142" class="stand" text-anchor="middle">The climate crisis does more than warm the Pacific, it is redrawing where the rain falls.</text>
-  <text x="{W / 2}" y="162" class="stand" text-anchor="middle">Comparing the record’s first twenty years with its last twenty, <tspan class="standb">the west and south have grown wetter</tspan></text>
-  <text x="{W / 2}" y="182" class="stand" text-anchor="middle">while <tspan class="standb">the dateline atolls have run dry</tspan>. Same ocean, different rain.</text>
-  <text x="{W / 2}" y="206" class="cap" text-anchor="middle">22 territories ordered by their shift, from driest beneath the sun to wettest at the far side of the wheel. The ocean lies inside the ring, the sky outside.</text>
+  <foreignObject x="90" y="140" width="660" height="96">
+    <div xmlns="http://www.w3.org/1999/xhtml" class="lead">The climate crisis does more than warm the Pacific,
+    it is redrawing where the rain falls. Around the ring of the old balance the 22 territories hang ordered
+    by their shift, each one a flag drop sized by that shift in % of a normal year’s rain. Rain arriving
+    falls inward, into the ocean. Rain leaving rises outward, a faded drop evaporating back into the sky.
+    From driest beneath the sun to wettest beyond the gap, <b>the west and south have grown wetter</b>
+    while <b>the dateline atolls have run dry</b>. Same ocean, different rain.</div>
+  </foreignObject>
 
   <!-- sky corners -->
   {corners()}
@@ -736,10 +789,7 @@ html = f"""<!DOCTYPE html>
   <!-- artwork -->
   {ART}
 
-  <!-- closing line -->
-  {conclusion()}
-
-  <!-- legend -->
+  <!-- the map and the data line -->
   {below()}
 
   <!-- print grain -->

@@ -13,8 +13,13 @@ Fifteen territories now catch more rain, seven catch less.
 
 ## The artwork — the rain wheel
 
-One circular artwork fills the page; narration lives in the sky corners and a
-single quiet legend line sits at the foot — nothing is written over the art.
+One circular artwork fills the page. The header carries an informative
+subtitle (what is compared) and one justified lead paragraph that folds
+the how-to-read into the narrative; the sky corners hold the two counts.
+The foot repeats the shift on an equirectangular map at the left (filled
+blue dot = gain, open amber ring = loss, sized by the shift), with a
+fluid conclusion beside it that carries the map's legend inside the
+prose, and one quiet data line beneath — nothing is written over the art.
 
 1. **The ring** is each territory's old balance — its average rain of
    1979–1998, the record's first twenty years. The ocean lies inside the
