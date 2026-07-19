@@ -680,15 +680,22 @@ def minimap():
         d = float(stats.delta[iso_])
         lo = median(q[0] for q in pts[iso_])
         la = median(q[1] for q in pts[iso_])
-        marks.append(((1.6 + 3.6 * abs(d) / DMAX) * MAP_W / 190.0, d, mx(lo), my(la)))
-    # big shifts first, so the small ones stay readable on top of them
-    for r, d, x, y in sorted(marks, key=lambda m: -m[0]):
-        if d >= 0:
-            # a paper hairline keeps the crowded Polynesian dots separable
-            p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{WET}" fill-opacity="0.9" '
-                     f'stroke="{PAPER}" stroke-width="0.7"/>')
-        else:
-            p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{PAPER}" stroke="{DRY_D}" stroke-width="1"/>')
+        # the floor is raised well above the old 1.6 so even the mildest
+        # shifts land a circle wide enough to read its flag inside
+        marks.append((iso_, (2.7 + 3.0 * abs(d) / DMAX) * MAP_W / 190.0, d, mx(lo), my(la)))
+    # big shifts first, so the small ones stay readable on top of them. Each
+    # mark carries its own flag inside, the same art as the wheel's drops,
+    # clipped to the circle; the outline alone still reads gain vs loss
+    for i, (iso_, r, d, x, y) in enumerate(sorted(marks, key=lambda m: -m[1])):
+        cap = (WET if d >= 0 else DRY_D)
+        clip_id = f"mark{i}"
+        p.append(f'<defs><clipPath id="{clip_id}"><circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}"/></clipPath></defs>')
+        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r + 0.9:.1f}" fill="{PAPER}"/>')
+        p.append(f'<g clip-path="url(#{clip_id})">'
+                  f'<g transform="translate({x - r:.1f},{y - r:.1f}) scale({2 * r / 100:.4f},{2 * r / 64:.4f})">'
+                  f'{flag_svg2(iso_)}</g>'
+                  f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{cap}" opacity="0.22"/></g>')
+        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="none" stroke="{cap}" stroke-width="{1.3 if d >= 0 else 1.1:.1f}"/>')
     p.append("</g>")
     return "".join(p)
 
