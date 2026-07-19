@@ -450,6 +450,11 @@ for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)
                f'fill="none" stroke="#ffffff" stroke-opacity="{o_}" stroke-width="{w_}" '
                f'stroke-linecap="round" filter="url(#bl2)"/>')
 
+# the wheel's one-line thesis, sitting where the ocean is left empty, on the
+# same horizontal centre as the sun and rain-cloud emblems it sits between
+art.append(f'<text x="{CX}" y="{CY - 9:.0f}" class="tagline halo" text-anchor="middle">Same ocean,</text>')
+art.append(f'<text x="{CX}" y="{CY + 20:.0f}" class="tagline halo" text-anchor="middle">different rain.</text>')
+
 # sun in the top-right sky, sitting beneath its corner headline
 sx, sy = 758, 314
 art.append(f'<circle cx="{sx}" cy="{sy}" r="100" fill="url(#glow)" opacity="0.4"/>')
@@ -633,7 +638,7 @@ def corners():
 GEO = json.loads((ROOT / "data" / "geo" / "pacific_land.json").read_text())
 MAP_W, MAP_H = 300.0, 149.0
 MAP_X = 48.0
-MAP_Y = 1010.0
+MAP_Y = 992.0
 LON0, LON1, LAT0, LAT1 = 126.0, 237.0, 24.0, -31.0
 
 def mx(lon):
@@ -689,7 +694,7 @@ def below():
     p.append(minimap())
     cx0 = MAP_X + MAP_W + 28
     cw = W - 44 - cx0
-    p.append(f'<foreignObject x="{cx0:.0f}" y="1032" width="{cw:.0f}" height="118">'
+    p.append(f'<foreignObject x="{cx0:.0f}" y="1036" width="{cw:.0f}" height="118">'
              f'<div xmlns="http://www.w3.org/1999/xhtml" class="concl">'
              f'Back on the map, every <b class="w">filled blue dot</b> is a territory now gaining rain '
              f'and every <b class="d">open amber ring</b> is one losing it, each sized by the same shift. '
@@ -698,8 +703,7 @@ def below():
              f'pulling water in opposite directions. This is not ordinary variability, it is the climate '
              f'crisis redrawing the Pacific’s water map.</div></foreignObject>')
     p.append(f'<text x="{W / 2}" y="1172" class="cap" text-anchor="middle">'
-             f'Data: SPC Pacific Data Hub · DF_CLIMATE_CHANGE, RAIN_ANOM · annual rainfall anomalies '
-             f'in % of the 1991–2020 normal · 22 Pacific territories, 1979–2025</text>')
+             f'Data: SPC Pacific Data Hub, RAIN_ANOM · {H0}–{R1}</text>')
     return "".join(p)
 
 # --- tapa frame, woven with an alternating rhythm ----------------------------------
@@ -746,6 +750,7 @@ html = f"""<!DOCTYPE html>
   .terr   {{ font:600 11px 'Outfit',sans-serif; letter-spacing:0.14em; }}
   .biglab {{ font:600 8.5px 'Outfit',sans-serif; letter-spacing:0.2em; fill:{SUB}; }}
   .anno   {{ font:italic 500 15.5px 'Fraunces',Georgia,serif; opacity:0.85; }}
+  .tagline{{ font:italic 500 23px 'Fraunces',Georgia,serif; fill:{INK}; opacity:0.92; }}
   .call   {{ font:italic 400 11px 'Fraunces',Georgia,serif; }}
   .linelab{{ font:600 9.5px 'Outfit',sans-serif; letter-spacing:0.24em; fill:{INK}; }}
   .name   {{ font:600 12px 'Outfit',sans-serif; }}
@@ -776,11 +781,10 @@ html = f"""<!DOCTYPE html>
   <circle cx="507.8" cy="66.2" r="1.4" fill="#ffffff" opacity="0.65"/>
   <foreignObject x="90" y="140" width="660" height="96">
     <div xmlns="http://www.w3.org/1999/xhtml" class="lead">The climate crisis does more than warm the Pacific,
-    it is redrawing where the rain falls. Around the ring of the old balance the 22 territories hang ordered
-    by their shift, each one a flag drop sized by that shift in % of a normal year’s rain. Rain arriving
-    falls inward, into the ocean. Rain leaving rises outward, a faded drop evaporating back into the sky.
-    From driest beneath the sun to wettest beyond the gap, <b>the west and south have grown wetter</b>
-    while <b>the dateline atolls have run dry</b>. Same ocean, different rain.</div>
+    it is redrawing where the rain falls. Comparing the record’s first twenty years ({H0}–{H1}) with its
+    last twenty ({R0}–{R1}), the 22 territories hang around the ring of that old balance, ordered by their
+    shift, each one a flag drop sized by that shift in % of a normal year’s rain. Rain arriving falls
+    inward, into the ocean; rain leaving rises outward, a faded drop evaporating back into the sky.</div>
   </foreignObject>
 
   <!-- sky corners -->
