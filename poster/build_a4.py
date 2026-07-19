@@ -412,7 +412,11 @@ defs.append(f'''<radialGradient id="washW" cx="0.5" cy="0.5" r="0.5">
 <radialGradient id="washD" cx="0.5" cy="0.5" r="0.5">
   <stop offset="0" stop-color="#efba3e" stop-opacity="0.07"/>
   <stop offset="0.7" stop-color="#efba3e" stop-opacity="0.03"/>
-  <stop offset="1" stop-color="#efba3e" stop-opacity="0"/></radialGradient>''')
+  <stop offset="1" stop-color="#efba3e" stop-opacity="0"/></radialGradient>
+<radialGradient id="taglineWash" cx="0.5" cy="0.5" r="0.5">
+  <stop offset="0" stop-color="{PAPER}" stop-opacity="0.85"/>
+  <stop offset="0.55" stop-color="{PAPER}" stop-opacity="0.55"/>
+  <stop offset="1" stop-color="{PAPER}" stop-opacity="0"/></radialGradient>''')
 art.append('<circle cx="128" cy="330" r="280" fill="url(#washW)"/>')
 art.append('<circle cx="726" cy="330" r="280" fill="url(#washD)"/>')
 
@@ -451,7 +455,9 @@ for rr_, a0_, a1_, w_, o_ in ((138, -62, -44, 6, 0.45), (152, -40, -28, 5, 0.35)
                f'stroke-linecap="round" filter="url(#bl2)"/>')
 
 # the wheel's one-line thesis, sitting where the ocean is left empty, on the
-# same horizontal centre as the sun and rain-cloud emblems it sits between
+# same horizontal centre as the sun and rain-cloud emblems it sits between.
+# A soft paper-toned wash lifts it clear of the engraved contour lines below
+art.append(f'<ellipse cx="{CX}" cy="{CY + 6:.0f}" rx="168" ry="58" fill="url(#taglineWash)"/>')
 art.append(f'<text x="{CX}" y="{CY - 9:.0f}" class="tagline halo" text-anchor="middle">Same ocean,</text>')
 art.append(f'<text x="{CX}" y="{CY + 20:.0f}" class="tagline halo" text-anchor="middle">different rain.</text>')
 
