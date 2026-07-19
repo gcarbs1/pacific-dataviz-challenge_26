@@ -637,8 +637,8 @@ def corners():
 
 # --- the same shift on the map: an equirectangular inset ---------------------------
 # every territory's generation shift again, this time at its true position:
-# a filled blue dot where the rain moved in, an open amber ring where it is
-# leaving, both sized by the shift itself. The dot positions are the median
+# a blue circle where the rain moved in, an amber triangle where it is
+# leaving, both sized by the shift itself. The mark positions are the median
 # point of each territory's coastline (plus the hand-added atoll specks),
 # so the geography is computed, not placed by hand.
 GEO = json.loads((ROOT / "data" / "geo" / "pacific_land.json").read_text())
@@ -684,18 +684,33 @@ def minimap():
         # shifts land a circle wide enough to read its flag inside
         marks.append((iso_, (2.7 + 3.0 * abs(d) / DMAX) * MAP_W / 190.0, d, mx(lo), my(la)))
     # big shifts first, so the small ones stay readable on top of them. Each
-    # mark carries its own flag inside, the same art as the wheel's drops,
-    # clipped to the circle; the outline alone still reads gain vs loss
+    # mark carries its own flag, the same art as the wheel's drops, but the
+    # real signal is the mark's shape: a circle for territories now wetter,
+    # a caution triangle for the ones drying out - readable at a glance
+    # even before the colour (blue vs amber) is read
+    def tri_d(cx_, cy_, rr_):
+        pts = [(cx_ + rr_ * math.cos(math.radians(-90 + k * 120)),
+                cy_ + rr_ * math.sin(math.radians(-90 + k * 120))) for k in range(3)]
+        return "M " + " L ".join(f"{px:.2f} {py:.2f}" for px, py in pts) + " Z"
+
     for i, (iso_, r, d, x, y) in enumerate(sorted(marks, key=lambda m: -m[1])):
-        cap = (WET if d >= 0 else DRY_D)
+        wet = d >= 0
+        cap = WET if wet else DRY_D
+        rr = r * 1.15 if not wet else r        # the triangle reads a touch small at equal area, so bump it
         clip_id = f"mark{i}"
-        p.append(f'<defs><clipPath id="{clip_id}"><circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}"/></clipPath></defs>')
-        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r + 0.9:.1f}" fill="{PAPER}"/>')
+        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{rr + 0.9:.1f}" fill="{PAPER}"/>')
+        if wet:
+            p.append(f'<defs><clipPath id="{clip_id}"><circle cx="{x:.1f}" cy="{y:.1f}" r="{rr:.1f}"/></clipPath></defs>')
+        else:
+            p.append(f'<defs><clipPath id="{clip_id}"><path d="{tri_d(x, y, rr)}"/></clipPath></defs>')
         p.append(f'<g clip-path="url(#{clip_id})">'
-                  f'<g transform="translate({x - r:.1f},{y - r:.1f}) scale({2 * r / 100:.4f},{2 * r / 64:.4f})">'
+                  f'<g transform="translate({x - rr:.1f},{y - rr:.1f}) scale({2 * rr / 100:.4f},{2 * rr / 64:.4f})">'
                   f'{flag_svg2(iso_)}</g>'
-                  f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{cap}" opacity="0.22"/></g>')
-        p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="none" stroke="{cap}" stroke-width="{1.3 if d >= 0 else 1.1:.1f}"/>')
+                  f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{rr:.1f}" fill="{cap}" opacity="0.16"/></g>')
+        if wet:
+            p.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{rr:.1f}" fill="none" stroke="{cap}" stroke-width="1.3"/>')
+        else:
+            p.append(f'<path d="{tri_d(x, y, rr)}" fill="none" stroke="{cap}" stroke-width="1.3" stroke-linejoin="round"/>')
     p.append("</g>")
     return "".join(p)
 
@@ -709,8 +724,8 @@ def below():
     cw = W - 44 - cx0
     p.append(f'<foreignObject x="{cx0:.0f}" y="1036" width="{cw:.0f}" height="118">'
              f'<div xmlns="http://www.w3.org/1999/xhtml" class="concl">'
-             f'Back on the map, every <b class="w">filled blue dot</b> is a territory now gaining rain '
-             f'and every <b class="d">open amber ring</b> is one losing it, each sized by the same shift. '
+             f'Back on the map, every <b class="w">blue circle</b> is a territory now gaining rain '
+             f'and every <b class="d">amber triangle</b> is one losing it, each sized by the same shift. '
              f'<b class="w">{NAMES[WETTEST_ISO]} gains {WETTEST_V:.1f}% more rain</b> while '
              f'<b class="d">{NAMES[DRIEST_ISO]} has lost {abs(DRIEST_V):.1f}%</b>, the same warming ocean '
              f'pulling water in opposite directions. This is not ordinary variability, it is the climate '
