@@ -13,7 +13,7 @@ One page, one artwork, nothing written over it:
      (odd/even-year split 0.90) and needs no statistics to explain
   2. legend, computed record notes and credits arranged below the art
 
-Builds poster/a4.html from data/rainfall_anomalies/data.csv.
+Builds viz/a4.html from data/processed/rainfall_anomalies.csv.
 """
 import json
 import math
@@ -24,12 +24,12 @@ from statistics import median
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = Path(__file__).resolve().parent / "a4.html"
+OUT = ROOT / "viz" / "a4.html"
 
 # ---------------------------------------------------------------- data ------
-df = pd.read_csv(ROOT / "data" / "rainfall_anomalies" / "data.csv")
-df = df[["GEO_PICT", "TIME_PERIOD", "OBS_VALUE"]].rename(
-    columns={"GEO_PICT": "iso", "TIME_PERIOD": "year", "OBS_VALUE": "v"}
+df = pd.read_csv(ROOT / "data" / "processed" / "rainfall_anomalies.csv")
+df = df[["geo_code", "year", "value"]].rename(
+    columns={"geo_code": "iso", "value": "v"}
 )
 H0, H1, R0, R1 = 1979, 1998, 2006, 2025
 hist = df[df.year.between(H0, H1)].groupby("iso")["v"].mean()
@@ -641,7 +641,7 @@ def corners():
 # leaving, both sized by the shift itself. The mark positions are the median
 # point of each territory's coastline (plus the hand-added atoll specks),
 # so the geography is computed, not placed by hand.
-GEO = json.loads((ROOT / "data" / "geo" / "pacific_land.json").read_text())
+GEO = json.loads((ROOT / "data" / "raw" / "geo" / "pacific_land.json").read_text())
 MAP_W, MAP_H = 300.0, 149.0
 MAP_X = 48.0
 MAP_Y = 992.0

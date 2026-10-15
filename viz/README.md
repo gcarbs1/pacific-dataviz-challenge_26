@@ -85,13 +85,14 @@ is the golden-triangle angle of the pentagram. The sheet itself is A4's √2.
 - `a4.html` — the poster (open in any browser; prints clean on A4).
 - `where-the-rain-went-a4.pdf` — print-ready vector A4 export (text and
   artwork stay vector, resolution-independent).
-- `build_a4.py` — generates `a4.html` from the raw data. No hand-edited
+- `../scripts/build_a4.py` — generates `a4.html` from the raw data. No hand-edited
   numbers: every figure on the page is computed from the CSV.
-- `export_pdf.sh` — rebuilds the HTML and exports the PDF in one step.
+- `../scripts/export_pdf.sh` — rebuilds the HTML and exports the PDF in one step.
 
 ## Data
 
-`data/rainfall_anomalies/data.csv` — SPC Pacific Data Hub, dataflow
+`data/processed/rainfall_anomalies.csv` — cleaned data derived from the SPC
+Pacific Data Hub dataflow
 `DF_CLIMATE_CHANGE`, indicator `RAIN_ANOM`, 22 Pacific Island countries and
 territories, 1979–2025.
 
@@ -132,7 +133,7 @@ trend claim is asserted at build time.
 ## Rebuild & export
 
 ```sh
-poster/export_pdf.sh
+scripts/export_pdf.sh
 ```
 
 (Regenerates `a4.html` from the CSV, then prints it to a vector A4 PDF with
