@@ -5,6 +5,11 @@
 <title>Where the Rain Went</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script>
+  if (new URLSearchParams(window.location.search).has('png')) {
+    document.documentElement.classList.add('png-export');
+  }
+</script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { background:#e8e4da; display:flex; justify-content:center; padding:24px 0;
@@ -38,6 +43,8 @@
   .tinyb  { font:600 9.3px 'Outfit',sans-serif; letter-spacing:0.16em; }
   .rul    { font:400 8px 'Outfit',sans-serif; }
   .halo   { paint-order:stroke; stroke:#fbf7ee; stroke-width:3.5px; stroke-linejoin:round; }
+  .png-export body { background:none; padding:0; margin:0; }
+  .png-export .sheet { box-shadow:none; }
   @page { size: 210mm 297mm; margin: 0; }
   /* 210mm = 793.7px, so the 840px sheet zooms by 793.7/840 to fill A4 exactly */
   @media print { body { background:none; padding:0; margin:0; } .sheet { box-shadow:none; zoom:0.94488; } }

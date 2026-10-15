@@ -45,7 +45,7 @@ After running the processing notebook, rebuild the HTML poster with:
 .venv/bin/python scripts/build_a4.py
 ```
 
-On macOS with Google Chrome installed, rebuild and export the PDF with:
+On macOS with Google Chrome installed, rebuild and export the PDF and PNG with:
 
 ```sh
 scripts/export_pdf.sh

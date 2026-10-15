@@ -85,9 +85,10 @@ is the golden-triangle angle of the pentagram. The sheet itself is A4's √2.
 - `a4.html` — the poster (open in any browser; prints clean on A4).
 - `where-the-rain-went-a4.pdf` — print-ready vector A4 export (text and
   artwork stay vector, resolution-independent).
-- `../scripts/build_a4.py` — generates `a4.html` from the raw data. No hand-edited
+- `where-the-rain-went-a4.png` — high-resolution 4× A4 raster export.
+- `../scripts/build_a4.py` — generates `a4.html` from the processed data. No hand-edited
   numbers: every figure on the page is computed from the CSV.
-- `../scripts/export_pdf.sh` — rebuilds the HTML and exports the PDF in one step.
+- `../scripts/export_pdf.sh` — rebuilds the HTML and exports both PDF and PNG.
 
 ## Data
 
@@ -136,5 +137,5 @@ trend claim is asserted at build time.
 scripts/export_pdf.sh
 ```
 
-(Regenerates `a4.html` from the CSV, then prints it to a vector A4 PDF with
-headless Chrome.)
+(Regenerates `a4.html` from the CSV, then exports a vector A4 PDF and a
+high-resolution PNG with headless Chrome.)
