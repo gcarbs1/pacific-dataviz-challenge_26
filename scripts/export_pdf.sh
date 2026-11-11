@@ -13,7 +13,7 @@ cd "$(dirname "$0")/.."
   --virtual-time-budget=8000 \
   --no-pdf-header-footer \
   --print-to-pdf="viz/where-the-rain-went-a4.pdf" \
-  "file://$PWD/viz/a4.html"
+  "file://$PWD/index.html"
 
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
   --headless=new --disable-gpu --hide-scrollbars \
@@ -21,7 +21,7 @@ cd "$(dirname "$0")/.."
   --window-size=840,1188 \
   --force-device-scale-factor=4 \
   --screenshot="viz/where-the-rain-went-a4.png" \
-  "file://$PWD/viz/a4.html?png=1"
+  "file://$PWD/index.html?png=1"
 
 echo "wrote viz/where-the-rain-went-a4.pdf"
 echo "wrote viz/where-the-rain-went-a4.png"

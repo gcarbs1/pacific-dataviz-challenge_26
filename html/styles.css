@@ -1,0 +1,180 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+  background: #e8e4da;
+  font-family: "Outfit", sans-serif;
+}
+
+.sheet {
+  width: 840px;
+  height: 1188px;
+  background: #fbf7ee;
+  box-shadow: 0 8px 40px rgba(40, 50, 60, 0.25);
+}
+
+svg {
+  display: block;
+}
+
+.kick {
+  fill: #5f7280;
+  font: 600 10px "Outfit", sans-serif;
+  letter-spacing: 0.32em;
+}
+
+.title {
+  fill: #22313b;
+  font: 600 58px "Fraunces", Georgia, serif;
+}
+
+.title .w {
+  fill: #1b87b4;
+  font-style: italic;
+}
+
+.lead {
+  color: #5f7280;
+  font: italic 400 12.5px/17px "Fraunces", Georgia, serif;
+  text-align: justify;
+  text-align-last: center;
+}
+
+.lead b {
+  color: #22313b;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.concl {
+  color: #22313b;
+  font: italic 400 11.5px/16.5px "Fraunces", Georgia, serif;
+  text-align: justify;
+}
+
+.concl b.w {
+  color: #0e5f83;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.concl b.d {
+  color: #9a571c;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.cap {
+  fill: #9aa9b2;
+  font: 400 10px "Outfit", sans-serif;
+}
+
+.bignum {
+  font: 700 34px "Fraunces", Georgia, serif;
+}
+
+.terr {
+  font: 600 11px "Outfit", sans-serif;
+  letter-spacing: 0.14em;
+}
+
+.biglab {
+  fill: #5f7280;
+  font: 600 8.5px "Outfit", sans-serif;
+  letter-spacing: 0.2em;
+}
+
+.anno {
+  font: italic 500 15.5px "Fraunces", Georgia, serif;
+  opacity: 0.85;
+}
+
+.tagline {
+  fill: #22313b;
+  font: italic 500 23px "Fraunces", Georgia, serif;
+  opacity: 0.92;
+}
+
+.call {
+  font: italic 400 11px "Fraunces", Georgia, serif;
+}
+
+.linelab {
+  fill: #22313b;
+  font: 600 9.5px "Outfit", sans-serif;
+  letter-spacing: 0.24em;
+}
+
+.name {
+  font: 600 12px "Outfit", sans-serif;
+}
+
+.val {
+  font: 700 13px "Outfit", sans-serif;
+}
+
+.avg {
+  font: 400 8.6px "Outfit", sans-serif;
+}
+
+.sname {
+  font: 500 9.5px "Outfit", sans-serif;
+}
+
+.sval {
+  font: 700 10px "Outfit", sans-serif;
+}
+
+.tiny {
+  font: 400 9.3px "Outfit", sans-serif;
+}
+
+.tinyb {
+  font: 600 9.3px "Outfit", sans-serif;
+  letter-spacing: 0.16em;
+}
+
+.rul {
+  font: 400 8px "Outfit", sans-serif;
+}
+
+.halo {
+  stroke: #fbf7ee;
+  stroke-width: 3.5px;
+  stroke-linejoin: round;
+  paint-order: stroke;
+}
+
+.png-export body {
+  margin: 0;
+  padding: 0;
+  background: none;
+}
+
+.png-export .sheet {
+  box-shadow: none;
+}
+
+@page {
+  size: 210mm 297mm;
+  margin: 0;
+}
+
+@media print {
+  body {
+    margin: 0;
+    padding: 0;
+    background: none;
+  }
+
+  .sheet {
+    zoom: 0.94488;
+    box-shadow: none;
+  }
+}

@@ -13,7 +13,7 @@ One page, one artwork, nothing written over it:
      (odd/even-year split 0.90) and needs no statistics to explain
   2. legend, computed record notes and credits arranged below the art
 
-Builds viz/a4.html from data/processed/rainfall_anomalies.csv.
+Builds index.html from data/processed/rainfall_anomalies.csv.
 """
 import json
 import math
@@ -24,7 +24,7 @@ from statistics import median
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / "viz" / "a4.html"
+OUT = ROOT / "index.html"
 
 # ---------------------------------------------------------------- data ------
 df = pd.read_csv(ROOT / "data" / "processed" / "rainfall_anomalies.csv")
@@ -641,7 +641,7 @@ def corners():
 # leaving, both sized by the shift itself. The mark positions are the median
 # point of each territory's coastline (plus the hand-added atoll specks),
 # so the geography is computed, not placed by hand.
-GEO = json.loads((ROOT / "data" / "raw" / "geo" / "pacific_land.json").read_text())
+GEO = json.loads((ROOT / "data" / "geo" / "pacific_land.json").read_text())
 MAP_W, MAP_H = 300.0, 149.0
 MAP_X = 48.0
 MAP_Y = 992.0
@@ -754,53 +754,13 @@ html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Where the Rain Went compares long-term rainfall shifts across 22 Pacific Island countries and territories.">
 <title>Where the Rain Went</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-<script>
-  if (new URLSearchParams(window.location.search).has('png')) {{
-    document.documentElement.classList.add('png-export');
-  }}
-</script>
-<style>
-  * {{ margin:0; padding:0; box-sizing:border-box; }}
-  body {{ background:#e8e4da; display:flex; justify-content:center; padding:24px 0;
-         font-family:'Outfit',sans-serif; }}
-  .sheet {{ width:{W}px; height:{Hpx}px; background:{PAPER}; box-shadow:0 8px 40px rgba(40,50,60,0.25); }}
-  svg {{ display:block; }}
-  .kick   {{ font:600 10px 'Outfit',sans-serif; letter-spacing:0.32em; fill:{SUB}; }}
-  .title  {{ font:600 58px 'Fraunces',Georgia,serif; fill:{INK}; }}
-  .title .w {{ fill:{WET}; font-style:italic; }}
-  .lead   {{ font:italic 400 12.5px 'Fraunces',Georgia,serif; color:{SUB}; line-height:17px;
-             text-align:justify; text-align-last:center; }}
-  .lead b {{ font-style:normal; font-weight:600; color:{INK}; }}
-  .concl  {{ font:italic 400 11.5px 'Fraunces',Georgia,serif; color:{INK}; line-height:16.5px;
-             text-align:justify; }}
-  .concl b.w {{ font-style:normal; font-weight:600; color:{WET_D}; }}
-  .concl b.d {{ font-style:normal; font-weight:600; color:{DRY_D}; }}
-  .cap    {{ font:400 10px 'Outfit',sans-serif; fill:{FAINT}; }}
-  .bignum {{ font:700 34px 'Fraunces',Georgia,serif; }}
-  .terr   {{ font:600 11px 'Outfit',sans-serif; letter-spacing:0.14em; }}
-  .biglab {{ font:600 8.5px 'Outfit',sans-serif; letter-spacing:0.2em; fill:{SUB}; }}
-  .anno   {{ font:italic 500 15.5px 'Fraunces',Georgia,serif; opacity:0.85; }}
-  .tagline{{ font:italic 500 23px 'Fraunces',Georgia,serif; fill:{INK}; opacity:0.92; }}
-  .call   {{ font:italic 400 11px 'Fraunces',Georgia,serif; }}
-  .linelab{{ font:600 9.5px 'Outfit',sans-serif; letter-spacing:0.24em; fill:{INK}; }}
-  .name   {{ font:600 12px 'Outfit',sans-serif; }}
-  .val    {{ font:700 13px 'Outfit',sans-serif; }}
-  .avg    {{ font:400 8.6px 'Outfit',sans-serif; }}
-  .sname  {{ font:500 9.5px 'Outfit',sans-serif; }}
-  .sval   {{ font:700 10px 'Outfit',sans-serif; }}
-  .tiny   {{ font:400 9.3px 'Outfit',sans-serif; }}
-  .tinyb  {{ font:600 9.3px 'Outfit',sans-serif; letter-spacing:0.16em; }}
-  .rul    {{ font:400 8px 'Outfit',sans-serif; }}
-  .halo   {{ paint-order:stroke; stroke:{PAPER}; stroke-width:3.5px; stroke-linejoin:round; }}
-  .png-export body {{ background:none; padding:0; margin:0; }}
-  .png-export .sheet {{ box-shadow:none; }}
-  @page {{ size: 210mm 297mm; margin: 0; }}
-  /* 210mm = 793.7px, so the 840px sheet zooms by 793.7/840 to fill A4 exactly */
-  @media print {{ body {{ background:none; padding:0; margin:0; }} .sheet {{ box-shadow:none; zoom:0.94488; }} }}
-</style>
+<link rel="stylesheet" href="html/styles.css">
+<script src="html/app.js"></script>
 </head>
 <body>
 <div class="sheet">
